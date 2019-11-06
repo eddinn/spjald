@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hi, {{ current_user.username }}!</h1>
+    {% for i in spjald %}
+        <div><p>{{ spjald.client.clientname }}<br />{{ spjald.client.clientemail }}<br />{{ spjald.client.clientphone }}<br />{{ spjald.client.clientaddress }}<br />{{ spjald.client.clientzip }}, {{ spjald.client.clientcity }}</p></div>
+    {% endfor %}
+{% endblock %}

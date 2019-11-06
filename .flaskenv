@@ -1,0 +1,2 @@
+FLASK_APP=spjald.py
+FLASK_DEBUG=1

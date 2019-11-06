@@ -16,13 +16,13 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-login = LoginManager(app)
-login.login_view = 'login'
+loginm = LoginManager(app)
+loginm.login_view = 'login'
 
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+@loginm.user_loader
+def load_user(userid):
+    return User.query.get(int(userid))
 
 
 @app.shell_context_processor
@@ -32,7 +32,7 @@ def make_shell_context():
 
 # Database models
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
@@ -48,14 +48,14 @@ class User(UserMixin, db.Model):
 
 
 class Spjald(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    clientid = db.Column(db.Integer, primary_key=True)
     clientname = db.Column(db.String(64), index=True)
     clientemail = db.Column(db.String(128), index=True, unique=True)
     clientphone = db.Column(db.String(24), index=True)
     clientaddress = db.Column(db.String(100), index=True)
     clientcity = db.Column(db.String(32), index=True)
     clientzip = db.Column(db.String(8), index=True)
-    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    userid = db.Column(db.Integer, db.ForeignKey('user.userid'))
 
     def __repr__(self):
         return '<clientname {}>'.format(self.clientname)
@@ -83,12 +83,14 @@ class RegistrationForm(FlaskForm):
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
-    def validate_username(self, username):
+    @staticmethod
+    def validate_username(username):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Please use a different username.')
 
-    def validate_email(self, email):
+    @staticmethod
+    def validate_email(email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')

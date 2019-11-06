@@ -21,8 +21,8 @@ loginm.login_view = 'login'
 
 
 @loginm.user_loader
-def load_user(userid):
-    return User.query.get(int(userid))
+def load_user(id):
+    return User.query.get(int(id))
 
 
 @app.shell_context_processor
@@ -32,7 +32,7 @@ def make_shell_context():
 
 # Database models
 class User(UserMixin, db.Model):
-    userid = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
@@ -55,7 +55,7 @@ class Spjald(db.Model):
     clientaddress = db.Column(db.String(100), index=True)
     clientcity = db.Column(db.String(32), index=True)
     clientzip = db.Column(db.String(8), index=True)
-    userid = db.Column(db.Integer, db.ForeignKey('user.userid'))
+    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
         return '<clientname {}>'.format(self.clientname)
@@ -84,13 +84,13 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     @staticmethod
-    def validate_username(username):
+    def validate_username(form, username):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
             raise ValidationError('Please use a different username.')
 
     @staticmethod
-    def validate_email(email):
+    def validate_email(form, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')

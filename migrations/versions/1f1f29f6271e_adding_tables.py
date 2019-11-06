@@ -1,8 +1,8 @@
-"""adding tables User and Spjald
+"""adding tables
 
-Revision ID: 1b7b3431e921
+Revision ID: 1f1f29f6271e
 Revises: 
-Create Date: 2019-11-06 12:50:17.060585
+Create Date: 2019-11-06 21:21:36.853755
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1b7b3431e921'
+revision = '1f1f29f6271e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,7 +28,7 @@ def upgrade():
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
     op.create_index(op.f('ix_user_username'), 'user', ['username'], unique=True)
     op.create_table('spjald',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('clientid', sa.Integer(), nullable=False),
     sa.Column('clientname', sa.String(length=64), nullable=True),
     sa.Column('clientemail', sa.String(length=128), nullable=True),
     sa.Column('clientphone', sa.String(length=24), nullable=True),
@@ -37,7 +37,7 @@ def upgrade():
     sa.Column('clientzip', sa.String(length=8), nullable=True),
     sa.Column('userid', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['userid'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('clientid')
     )
     op.create_index(op.f('ix_spjald_clientaddress'), 'spjald', ['clientaddress'], unique=False)
     op.create_index(op.f('ix_spjald_clientcity'), 'spjald', ['clientcity'], unique=False)

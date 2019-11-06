@@ -21,7 +21,7 @@ loginm.login_view = 'login'
 
 
 @loginm.user_loader
-def load_user(id):
+def load_user(id): #pylint: disable=redefined-builtin
     return User.query.get(int(id))
 
 

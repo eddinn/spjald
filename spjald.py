@@ -17,7 +17,6 @@ from wtforms.validators import Optional, Length
 from hashlib import md5
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from datetime import datetime
-import errors
 
 
 app = Flask(__name__)
@@ -36,6 +35,17 @@ def load_user(id):  # pylint: disable=redefined-builtin
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': User, 'Spjald': Spjald}
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
 
 
 # Loggin and admin email
@@ -87,7 +97,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self, size):
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()  # pylint: disable=B303
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
 

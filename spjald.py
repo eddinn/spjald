@@ -80,9 +80,10 @@ if not app.debug:
 
 # Database models
 followers = db.Table('followers',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
-)
+    db.Column('follower_id', db.Integer,
+              db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer,
+              db.ForeignKey('user.id')))
 
 
 class User(UserMixin, db.Model):
@@ -205,14 +206,14 @@ def index():
     form = PostForm()
     if form.validate_on_submit():
         post = Post(clientname=form.clientname.data,
-                           clientss=form.clientss.data,
-                           clientemail=form.clientemail.data,
-                           clientphone=form.clientphone.data,
-                           clientaddress=form.clientaddress.data,
-                           clientzip=form.clientzip.data,
-                           clientcity=form.clientcity.data,
-                           clientinfo=form.clientinfo.data,
-                           author=current_user)
+                    clientss=form.clientss.data,
+                    clientemail=form.clientemail.data,
+                    clientphone=form.clientphone.data,
+                    clientaddress=form.clientaddress.data,
+                    clientzip=form.clientzip.data,
+                    clientcity=form.clientcity.data,
+                    clientinfo=form.clientinfo.data,
+                    author=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Client data successfully added!')
@@ -295,7 +296,7 @@ def explore():
     prev_url = url_for('explore', page=posts.prev_num) \
         if posts.has_prev else None
     return render_template("index.html", title='Explore', posts=posts.items,
-                          next_url=next_url, prev_url=prev_url)
+                           next_url=next_url, prev_url=prev_url)
 
 
 @app.route('/follow/<username>')

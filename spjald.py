@@ -34,7 +34,7 @@ def load_user(id):  # pylint: disable=redefined-builtin
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': User, 'Spjald': Spjald}
+    return {'db': db, 'User': User, 'Post': Post}
 
 
 @app.errorhandler(404)
@@ -79,13 +79,24 @@ if not app.debug:
 
 
 # Database models
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+)
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), index=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    spjold = db.relationship('Spjald', backref='author', lazy='dynamic')
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    followed = db.relationship(
+        'User', secondary=followers,
+        primaryjoin=(followers.c.follower_id == id),
+        secondaryjoin=(followers.c.followed_id == id),
+        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -102,12 +113,27 @@ class User(UserMixin, db.Model):
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
 
-    def own_spjold(self):
-        own = Spjald.query.filter_by(user_id=self.id)
-        return own.order_by(Spjald.timestamp.desc())
+    def follow(self, user):
+        if not self.is_following(user):
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        if self.is_following(user):
+            self.followed.remove(user)
+
+    def is_following(self, user):
+        return self.followed.filter(
+            followers.c.followed_id == user.id).count() > 0
+
+    def followed_posts(self):
+        followed = Post.query.join(
+            followers, (followers.c.followed_id == Post.user_id)).filter(
+                followers.c.follower_id == self.id)
+        own = Post.query.filter_by(user_id=self.id)
+        return followed.union(own).order_by(Post.timestamp.desc())
 
 
-class Spjald(db.Model):
+class Post(db.Model):
     clientid = db.Column(db.Integer, primary_key=True)
     clientname = db.Column(db.String(64), index=True)
     clientss = db.Column(db.String(11), index=True, unique=True)
@@ -117,15 +143,15 @@ class Spjald(db.Model):
     clientcity = db.Column(db.String(32), index=True)
     clientzip = db.Column(db.String(8), index=True)
     clientinfo = db.Column(db.Text, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 #    def __repr__(self):
 #        return '<Spjald {}>'.format(self.clientname, self.clientemail,
 #                                    self.clientphone, self.clientaddress,
 #                                    self.clientzip, self.clientcity)
     def __repr__(self):
-        return '<Spjald {}>'.format(self.clientname)
+        return '<Post {}>'.format(self.clientname)
 
 
 # Forms
@@ -158,7 +184,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 
-class addSpjaldForm(FlaskForm):
+class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social Security number', validators=[Optional()])
     clientemail = StringField('Email', validators=[DataRequired()])
@@ -176,9 +202,9 @@ class addSpjaldForm(FlaskForm):
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    form = addSpjaldForm()
+    form = PostForm()
     if form.validate_on_submit():
-        addspjald = Spjald(clientname=form.clientname.data,
+        post = Post(clientname=form.clientname.data,
                            clientss=form.clientss.data,
                            clientemail=form.clientemail.data,
                            clientphone=form.clientphone.data,
@@ -187,19 +213,19 @@ def index():
                            clientcity=form.clientcity.data,
                            clientinfo=form.clientinfo.data,
                            author=current_user)
-        db.session.add(addspjald)
+        db.session.add(post)
         db.session.commit()
-        flash('Client data sucsessfully added!')
+        flash('Client data successfully added!')
         return redirect(url_for('index'))
     page = request.args.get('page', 1, type=int)
-    spjold = current_user.own_spjold().paginate(
+    posts = current_user.followed_posts().paginate(
         page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('index', page=spjold.next_num) \
-        if spjold.has_next else None
-    prev_url = url_for('index', page=spjold.prev_num) \
-        if spjold.has_prev else None
+    next_url = url_for('index', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) \
+        if posts.has_prev else None
     return render_template('index.html', title='Home', form=form,
-                           spjold=spjold.items, next_url=next_url,
+                           posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
 
@@ -248,25 +274,57 @@ def register():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    spjold = Spjald.query.order_by(Spjald.timestamp.desc()).paginate(
+    posts = user.posts.order_by(Post.timestamp.desc()).paginate(
         page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('user', username=user.username, page=spjold.next_num) \
-        if spjold.has_next else None
-    prev_url = url_for('user', username=user.username, page=spjold.prev_num) \
-        if spjold.has_prev else None
-    return render_template('user.html', user=user, spjold=spjold.items,
+    next_url = url_for('user', username=user.username, page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('user', username=user.username, page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('user.html', user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
 
 
-@app.route('/search')
+@app.route('/explore')
 @login_required
-def search():
+def explore():
     page = request.args.get('page', 1, type=int)
-    spjold = Spjald.query.order_by(Spjald.timestamp.desc()).paginate(
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
         page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('search', page=spjold.next_num) \
-        if spjold.has_next else None
-    prev_url = url_for('search', page=spjold.prev_num) \
-        if spjold.has_prev else None
-    return render_template('index.html', title='Search', spjold=spjold.items,
-                           next_url=next_url, prev_url=prev_url)
+    next_url = url_for('explore', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('explore', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template("index.html", title='Explore', posts=posts.items,
+                          next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/follow/<username>')
+@login_required
+def follow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found.'.format(username))
+        return redirect(url_for('index'))
+    if user == current_user:
+        flash('You cannot follow yourself!')
+        return redirect(url_for('user', username=username))
+    current_user.follow(user)
+    db.session.commit()
+    flash('You are following {}!'.format(username))
+    return redirect(url_for('user', username=username))
+
+
+@app.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('User {} not found.'.format(username))
+        return redirect(url_for('index'))
+    if user == current_user:
+        flash('You cannot unfollow yourself!')
+        return redirect(url_for('user', username=username))
+    current_user.unfollow(user)
+    db.session.commit()
+    flash('You are not following {}.'.format(username))
+    return redirect(url_for('user', username=username))

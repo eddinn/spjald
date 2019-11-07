@@ -51,8 +51,8 @@
             </p>
         </form>
         {% endif %}
-    {% for i in spjold %}
-        {% include '_spjald.html' %}
+    {% for post in posts %}
+        {% include '_post.html' %}
     {% endfor %}
     {% if prev_url %}
         <a href="{{ prev_url }}">Newer</a>

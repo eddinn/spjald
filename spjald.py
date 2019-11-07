@@ -14,7 +14,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms import TextAreaField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from wtforms.validators import Optional, Length
-from hashlib import md5
+from hashlib import _hashlib
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from datetime import datetime
 
@@ -97,7 +97,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def avatar(self, size):
-        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        digest = _hashlib.openssl_md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
 

@@ -11,9 +11,12 @@ from werkzeug.urls import url_parse
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import TextAreaField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms.validators import Optional, Length
 from hashlib import md5
 from logging.handlers import SMTPHandler, RotatingFileHandler
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -82,9 +85,10 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    spjold = db.relationship('Spjald', backref='author', lazy='dynamic')
 
     def __repr__(self):
-        return '<User {}>'.format(self.name)
+        return '<User {}>'.format(self.username)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -97,6 +101,10 @@ class User(UserMixin, db.Model):
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
             digest, size)
 
+    def own_spjold(self):
+        own = Spjald.query.filter_by(user_id=self.id)
+        return own.order_by(Spjald.timestamp.desc())
+
 
 class Spjald(db.Model):
     clientid = db.Column(db.Integer, primary_key=True)
@@ -108,12 +116,15 @@ class Spjald(db.Model):
     clientcity = db.Column(db.String(32), index=True)
     clientzip = db.Column(db.String(8), index=True)
     clientinfo = db.Column(db.Text, index=True)
-    userid = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
+#    def __repr__(self):
+#        return '<Spjald {}>'.format(self.clientname, self.clientemail,
+#                                    self.clientphone, self.clientaddress,
+#                                    self.clientzip, self.clientcity)
     def __repr__(self):
-        return '<Spjald {}>'.format(self.clientname, self.clientemail,
-                                    self.clientphone, self.clientaddress,
-                                    self.clientzip, self.clientcity)
+        return '<Spjald {}>'.format(self.clientname)
 
 
 # Forms
@@ -146,22 +157,49 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 
+class addSpjaldForm(FlaskForm):
+    clientname = StringField('Name', validators=[DataRequired()])
+    clientss = StringField('Social Security number', validators=[Optional()])
+    clientemail = StringField('Email', validators=[DataRequired()])
+    clientphone = StringField('Phone', validators=[DataRequired()])
+    clientaddress = StringField('Address', validators=[Optional()])
+    clientzip = StringField('ZIP', validators=[Optional()])
+    clientcity = StringField('City', validators=[Optional()])
+    clientinfo = TextAreaField('Info', validators=[
+        Optional(), Length(min=0, max=2048)])
+    submit = SubmitField('Submit')
+
+
 # Routes
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    spjald = {
-        'client': {
-            'clientname': 'Edvin Dunaway',
-            'clientemail': 'edvin@eddinn.net',
-            'clientphone': '+354 8581981',
-            'clientaddress': 'Hlíðargata 18D',
-            'clientzip': '245',
-            'clientcity': 'Suðurnesjabær'
-        }
-    }
-    return render_template('index.html', title='Home', spjald=spjald)
+    form = addSpjaldForm()
+    if form.validate_on_submit():
+        addspjald = Spjald(clientname=form.clientname.data,
+                           clientss=form.clientss.data,
+                           clientemail=form.clientemail.data,
+                           clientphone=form.clientphone.data,
+                           clientaddress=form.clientaddress.data,
+                           clientzip=form.clientzip.data,
+                           clientcity=form.clientcity.data,
+                           clientinfo=form.clientinfo.data,
+                           author=current_user)
+        db.session.add(addspjald)
+        db.session.commit()
+        flash('Client data sucsessfully added!')
+        return redirect(url_for('index'))
+    page = request.args.get('page', 1, type=int)
+    spjold = current_user.own_spjold().paginate(
+        page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=spjold.next_num) \
+        if spjold.has_next else None
+    prev_url = url_for('index', page=spjold.prev_num) \
+        if spjold.has_prev else None
+    return render_template('index.html', title='Home', form=form,
+                           spjold=spjold.items, next_url=next_url,
+                           prev_url=prev_url)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -194,7 +232,8 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(name=form.name.data, username=form.username.data,
+                    email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -207,17 +246,26 @@ def register():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    spjald = {
-        'client': {
-            'clientid': '1',
-            'clientname': 'Edvin Dunaway',
-            'clientss': '0807815209',
-            'clientemail': 'edvin@eddinn.net',
-            'clientphone': '+354 8581981',
-            'clientaddress': 'Hlíðargata 18D',
-            'clientzip': '245',
-            'clientcity': 'Suðurnesjabær',
-            'clientinfo': 'Stuff about the client...'
-        }
-    }
-    return render_template('user.html', user=user, spjald=spjald)
+    page = request.args.get('page', 1, type=int)
+    spjold = Spjald.query.order_by(Spjald.timestamp.desc()).paginate(
+        page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('user', username=user.username, page=spjold.next_num) \
+        if spjold.has_next else None
+    prev_url = url_for('user', username=user.username, page=spjold.prev_num) \
+        if spjold.has_prev else None
+    return render_template('user.html', user=user, spjold=spjold.items,
+                           next_url=next_url, prev_url=prev_url)
+
+
+@app.route('/search')
+@login_required
+def search():
+    page = request.args.get('page', 1, type=int)
+    spjold = Spjald.query.order_by(Spjald.timestamp.desc()).paginate(
+        page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('search', page=spjold.next_num) \
+        if spjold.has_next else None
+    prev_url = url_for('search', page=spjold.prev_num) \
+        if spjold.has_prev else None
+    return render_template('index.html', title='Search', spjold=spjold.items,
+                           next_url=next_url, prev_url=prev_url)

@@ -1,3 +1,5 @@
+import os
+import logging
 from flask import Flask, render_template, flash, redirect, url_for
 from flask import request
 from config import Config
@@ -10,6 +12,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from hashlib import md5
+from logging.handlers import SMTPHandler, RotatingFileHandler
 
 
 app = Flask(__name__)
@@ -30,15 +34,57 @@ def make_shell_context():
     return {'db': db, 'User': User, 'Spjald': Spjald}
 
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
+
+
+# Loggin and admin email
+if not app.debug:
+    if app.config['MAIL_SERVER']:
+        auth = None
+        if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
+            auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+        secure = None
+        if app.config['MAIL_USE_TLS']:
+            secure = ()
+        mail_handler = SMTPHandler(
+            mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
+            fromaddr='no-reply@' + app.config['MAIL_SERVER'],
+            toaddrs=app.config['ADMINS'], subject='Microblog Failure',
+            credentials=auth, secure=secure)
+        mail_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(mail_handler)
+
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/spjald.log', maxBytes=10240,
+                                       backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Spjald startup')
+
+
 # Database models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), index=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {}>'.format(self.name)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -46,25 +92,28 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
+            digest, size)
+
 
 class Spjald(db.Model):
     clientid = db.Column(db.Integer, primary_key=True)
     clientname = db.Column(db.String(64), index=True)
+    clientss = db.Column(db.String(11), index=True, unique=True)
     clientemail = db.Column(db.String(128), index=True, unique=True)
     clientphone = db.Column(db.String(24), index=True)
     clientaddress = db.Column(db.String(100), index=True)
     clientcity = db.Column(db.String(32), index=True)
     clientzip = db.Column(db.String(8), index=True)
+    clientinfo = db.Column(db.Text, index=True)
     userid = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '<clientname {}>'.format(self.clientname)
-    # def __repr__(self):
-    #    return '<clientname {}><clientemail {}><clientphone {}>\
-    #        <clientaddress {}><clientzip {}><clientcity {}>'.format(
-    #            self.clientname, self.clientemail, self.clientphone,
-    #            self.clientaddress, self.clientzip, self.clientcity
-    #        )
+        return '<Spjald {}>'.format(self.clientname, self.clientemail,
+                                    self.clientphone, self.clientaddress,
+                                    self.clientzip, self.clientcity)
 
 
 # Forms
@@ -76,6 +125,7 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -151,3 +201,23 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    spjald = {
+        'client': {
+            'clientid': '1',
+            'clientname': 'Edvin Dunaway',
+            'clientss': '0807815209',
+            'clientemail': 'edvin@eddinn.net',
+            'clientphone': '+354 8581981',
+            'clientaddress': 'Hlíðargata 18D',
+            'clientzip': '245',
+            'clientcity': 'Suðurnesjabær',
+            'clientinfo': 'Stuff about the client...'
+        }
+    }
+    return render_template('user.html', user=user, spjald=spjald)

@@ -60,6 +60,9 @@ db.sqlite3
 *.db
 db.*
 
+# Flask-Migrate
+migrations
+
 # Flask stuff:
 instance/
 .webassets-cache

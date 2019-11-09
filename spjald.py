@@ -187,17 +187,17 @@ class RegistrationForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    clientname = StringField('Name', validators=[DataRequired()])
+    clientname = StringField('Name', validators=[Optional()])
     clientss = StringField('Social Security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired()])
-    clientphone = StringField('Phone', validators=[DataRequired()])
+    clientemail = StringField('Email', validators=[Optional()])
+    clientphone = StringField('Phone', validators=[Optional()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
     clientinfo = TextAreaField('Info', validators=[
         Optional(), Length(min=0, max=2048)])
     submit = SubmitField('Submit')
-    # cancel = SubmitField('Cancel')
+    cancel = SubmitField('Cancel')
 
 
 # Routes
@@ -222,19 +222,22 @@ def index():
 def addpost():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(clientname=form.clientname.data,
-                    clientss=form.clientss.data,
-                    clientemail=form.clientemail.data,
-                    clientphone=form.clientphone.data,
-                    clientaddress=form.clientaddress.data,
-                    clientzip=form.clientzip.data,
-                    clientcity=form.clientcity.data,
-                    clientinfo=form.clientinfo.data,
-                    author=current_user)
-        db.session.add(post)
-        db.session.commit()
-        flash('Client data successfully added!')
-        return redirect(url_for('addpost'))
+        if form.submit.data:
+            post = Post(clientname=form.clientname.data,
+                        clientss=form.clientss.data,
+                        clientemail=form.clientemail.data,
+                        clientphone=form.clientphone.data,
+                        clientaddress=form.clientaddress.data,
+                        clientzip=form.clientzip.data,
+                        clientcity=form.clientcity.data,
+                        clientinfo=form.clientinfo.data,
+                        author=current_user)
+            db.session.add(post)
+            db.session.commit()
+            flash('Client data successfully added!')
+            return redirect(url_for('addpost'))
+        else:
+            return redirect(url_for('index'))
     return render_template('addpost.html', title='Add Post', form=form)
 
 
@@ -331,11 +334,12 @@ def editpost(clientid):
     qry = Post.query.filter_by(clientid=clientid).first()
     form = PostForm(request.form, obj=qry)
     if form.validate_on_submit():
-        form.populate_obj(qry)
-        db.session.commit()
-        flash('Your changes have been saved.')
-        return redirect(url_for('editpost', clientid=clientid))
-#    else:
-#        return redirect(url_for('index'))
+        if form.submit.data:
+            form.populate_obj(qry)
+            db.session.commit()
+            flash('Your changes have been saved.')
+            return redirect(url_for('editpost', clientid=clientid))
+        else:
+            return redirect(url_for('index'))
     return render_template('editpost.html', title='Edit post',
                            form=form, clientid=clientid)

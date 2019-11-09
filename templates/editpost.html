@@ -46,7 +46,7 @@
                     {{ form.clientinfo(cols=32, rows=4) }}<br>
                 </p>
                 <p>
-                    {{ form.submit() }} <input type="submit" name="submit" value="Cancel" formnovalidate>
+                    {{ form.submit() }} {{ form.cancel() }}
                 </p>
         </form>
 {% endblock %}

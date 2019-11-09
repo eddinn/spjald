@@ -10,6 +10,7 @@
                     {{ post.clientphone }}<br />
                     {{ post.clientaddress }}<br />
                     {{ post.clientzip }}, {{ post.clientcity }}<br />
+                    <p><a href="{{ url_for('editpost', clientid=post.clientid) }}">Edit</a></p>
                 </div>
             </td>
             <td>
@@ -19,5 +20,6 @@
                 </div>
             </td>
         </tr>
+        <tr colspan="2"><hr style="width: 300px; text-align:left; margin-left:100;"></tr>
     </table>
 </div>

@@ -147,12 +147,13 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-#    def __repr__(self):
-#        return '<Spjald {}>'.format(self.clientname, self.clientemail,
-#                                    self.clientphone, self.clientaddress,
-#                                    self.clientzip, self.clientcity)
+    # def __repr__(self):
+    #    return '{}'.format(self.clientname, self.clientss,
+    #                       self.clientemail, self.clientphone,
+    #                       self.clientaddress, self.clientcity,
+    #                       self.clientzip, self.clientinfo)
     def __repr__(self):
-        return '<Post {}>'.format(self.clientname)
+        return '{}'.format(self.clientname)
 
 
 # Forms
@@ -196,6 +197,7 @@ class PostForm(FlaskForm):
     clientinfo = TextAreaField('Info', validators=[
         Optional(), Length(min=0, max=2048)])
     submit = SubmitField('Submit')
+    # cancel = SubmitField('Cancel')
 
 
 # Routes
@@ -203,6 +205,21 @@ class PostForm(FlaskForm):
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().paginate(
+        page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) \
+        if posts.has_prev else None
+    return render_template('index.html', title='Home',
+                           posts=posts.items, next_url=next_url,
+                           prev_url=prev_url)
+
+
+@app.route('/addpost', methods=['GET', 'POST'])
+@login_required
+def addpost():
     form = PostForm()
     if form.validate_on_submit():
         post = Post(clientname=form.clientname.data,
@@ -217,17 +234,8 @@ def index():
         db.session.add(post)
         db.session.commit()
         flash('Client data successfully added!')
-        return redirect(url_for('index'))
-    page = request.args.get('page', 1, type=int)
-    posts = current_user.followed_posts().paginate(
-        page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('index', page=posts.next_num) \
-        if posts.has_next else None
-    prev_url = url_for('index', page=posts.prev_num) \
-        if posts.has_prev else None
-    return render_template('index.html', title='Home', form=form,
-                           posts=posts.items, next_url=next_url,
-                           prev_url=prev_url)
+        return redirect(url_for('addpost'))
+    return render_template('addpost.html', title='Add Post', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -285,20 +293,6 @@ def user(username):
                            next_url=next_url, prev_url=prev_url)
 
 
-@app.route('/explore')
-@login_required
-def explore():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('explore', page=posts.next_num) \
-        if posts.has_next else None
-    prev_url = url_for('explore', page=posts.prev_num) \
-        if posts.has_prev else None
-    return render_template("index.html", title='Explore', posts=posts.items,
-                           next_url=next_url, prev_url=prev_url)
-
-
 @app.route('/follow/<username>')
 @login_required
 def follow(username):
@@ -329,3 +323,19 @@ def unfollow(username):
     db.session.commit()
     flash('You are not following {}.'.format(username))
     return redirect(url_for('user', username=username))
+
+
+@app.route('/editpost/<int:clientid>', methods=['GET', 'POST'])
+@login_required
+def editpost(clientid):
+    qry = Post.query.filter_by(clientid=clientid).first()
+    form = PostForm(request.form, obj=qry)
+    if form.validate_on_submit():
+        form.populate_obj(qry)
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('editpost', clientid=clientid))
+#    else:
+#        return redirect(url_for('index'))
+    return render_template('editpost.html', title='Edit post',
+                           form=form, clientid=clientid)

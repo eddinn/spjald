@@ -1,30 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-    <!-- <script src="https://cdn.tiny.cloud/1/prov7b5xue6vf2iwpm6zycj0cae50umuzim111ex6vu4042f/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
-    <script src="{{ url_for('static', filename='tinymce/tinymce.min.js') }}"></script>
-    <script>
-        tinymce.init({
-        selector: 'clientinfo',
-        height: 500,
-        menubar: false,
-        plugins: [
-            'advlist autolink link image imagetools lists charmap print preview hr anchor pagebreak spellchecker',
-            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
-            'save table contextmenu directionality template paste textcolor codesample'
-        ],
-        toolbar: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons | codesample',
-        codesample_languages: [
-            {text: 'HTML/XML', value: 'markup'},
-            {text: 'JavaScript', value: 'javascript'},
-            {text: 'CSS', value: 'css'},
-            {text: 'Processing', value: 'processing'},
-            {text: 'Python', value: 'python'}
-        content_css: [
-          '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
-          '//www.tiny.cloud/css/codepen.min.css'
-        ]
-        });
-    </script>
     <h1>Hi, {{ current_user.name }}!</h1>
         <form action="" method="post">
             {{ form.hidden_tag() }}
@@ -73,4 +48,29 @@
                     {{ form.submit() }}  {{ form.cancel() }}
                 </p>
         </form>
+    <!-- <script src="https://cdn.tiny.cloud/1/prov7b5xue6vf2iwpm6zycj0cae50umuzim111ex6vu4042f/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+    <script src="{{ url_for('static', filename='tinymce/tinymce.min.js') }}"></script>
+    <script>
+        tinymce.init({
+        selector: '#clientinfo',
+        height: 500,
+        menubar: false,
+        plugins: [
+            'advlist lists charmap print preview hr anchor pagebreak spellchecker',
+            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking',
+            'save table contextmenu directionality template paste textcolor codesample'
+        ],
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | print preview media fullpage | forecolor backcolor | codesample',
+        codesample_languages: [
+            {text: 'HTML/XML', value: 'markup'},
+            {text: 'JavaScript', value: 'javascript'},
+            {text: 'CSS', value: 'css'},
+            {text: 'Processing', value: 'processing'},
+            {text: 'Python', value: 'python'}
+        content_css: [
+          '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
+          '//www.tiny.cloud/css/codepen.min.css'
+        ]
+        });
+    </script>
 {% endblock %}

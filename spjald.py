@@ -1,7 +1,7 @@
 import os
 import logging
 from flask import Flask, render_template, flash, redirect, url_for
-from flask import request  # , jsonify, make_response
+from flask import request
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate

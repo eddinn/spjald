@@ -1,7 +1,7 @@
 import os
 import logging
 from flask import Flask, render_template, flash, redirect, url_for
-from flask import request  # , jsonify, make_response
+from flask import request
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -194,8 +194,8 @@ class PostForm(FlaskForm):
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
-    clientinfo = TextAreaField('Info',
-                               validators=[Optional(), Length(max=2048)])
+    clientinfo = TextAreaField('Info', validators=[Optional(),
+                                                   Length(min=0, max=2048)])
     submit = SubmitField('Submit')
     cancel = SubmitField('Cancel')
 
@@ -343,20 +343,3 @@ def editpost(clientid):
             return redirect(url_for('index'))
     return render_template('editpost.html', title='Edit post',
                            form=form, clientid=clientid)
-
-
-# @app.route('/imageuploader', methods=['POST'])
-# @login_required
-# def imageuploader():
-#    file = request.files.get('file')
-#    if file:
-#        filename = file.filename.lower()
-#        if ext in ['jpg', 'gif', 'png', 'jpeg']:
-#            img_fullpath = os.path.join(app.config['UPLOADED_PATH'], filename)
-#            file.save(img_fullpath)
-#            return jsonify({'location': filename})
-#
-#    # fail, image did not upload
-#    output = make_response(404)
-#    output.headers['Error'] = 'Image failed to upload'
-#    return output

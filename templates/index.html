@@ -2,62 +2,13 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.name }}!</h1>
-    {% if form %}
-    <form action="" method="post">
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.clientname.label }}<br>
-                {{ form.clientname(cols=32, rows=4) }}<br>
-                {% for error in form.clientname.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.clientss.label }}<br>
-                {{ form.clientss(cols=32, rows=4) }}<br>
-            </p>
-            <p>
-                {{ form.clientemail.label }}<br>
-                {{ form.clientemail(cols=32, rows=4) }}<br>
-                {% for error in form.clientemail.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.clientphone.label }}<br>
-                {{ form.clientphone(cols=32, rows=4) }}<br>
-                {% for error in form.clientphone.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-                {% endfor %}
-            </p>
-            <p>
-                {{ form.clientaddress.label }}<br>
-                {{ form.clientaddress(cols=32, rows=4) }}<br>
-            </p>
-            <p>
-                {{ form.clientzip.label }}<br>
-                {{ form.clientzip(cols=32, rows=4) }}<br>
-            </p>
-            <p>
-                {{ form.clientcity.label }}<br>
-                {{ form.clientcity(cols=32, rows=4) }}<br>
-            </p>
-            <p>
-                {{ form.clientinfo.label }}<br>
-                {{ form.clientinfo(cols=32, rows=4) }}<br>
-            </p>
-            <p>
-                {{ form.submit() }}
-            </p>
-        </form>
+        {% for post in posts %}
+            {% include '_post.html' %}
+        {% endfor %}
+        {% if prev_url %}
+            <a href="{{ prev_url }}">Newer</a>
         {% endif %}
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
-    {% if prev_url %}
-        <a href="{{ prev_url }}">Newer</a>
-    {% endif %}
-    {% if next_url %}
-        <a href="{{ next_url }}">Older</a>
-    {% endif %}
+        {% if next_url %}
+            <a href="{{ next_url }}">Older</a>
+        {% endif %}
 {% endblock %}

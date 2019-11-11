@@ -189,10 +189,10 @@ class RegistrationForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    clientname = StringField('Name', validators=[Optional()])
+    clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social Security number', validators=[Optional()])
     clientemail = StringField('Email', validators=[Optional()])
-    clientphone = StringField('Phone', validators=[Optional()])
+    clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])

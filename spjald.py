@@ -17,6 +17,7 @@ from wtforms.validators import Optional, Length
 from hashlib import _hashlib
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from datetime import datetime
+from flask_bootstrap import Bootstrap
 
 
 app = Flask(__name__)
@@ -25,6 +26,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 loginm = LoginManager(app)
 loginm.login_view = 'login'
+bootstrap = Bootstrap(app)
 
 
 @loginm.user_loader
@@ -343,20 +345,3 @@ def editpost(clientid):
             return redirect(url_for('index'))
     return render_template('editpost.html', title='Edit post',
                            form=form, clientid=clientid)
-
-
-# @app.route('/imageuploader', methods=['POST'])
-# @login_required
-# def imageuploader():
-#    file = request.files.get('file')
-#    if file:
-#        filename = file.filename.lower()
-#        if ext in ['jpg', 'gif', 'png', 'jpeg']:
-#            img_fullpath = os.path.join(app.config['UPLOADED_PATH'], filename)
-#            file.save(img_fullpath)
-#            return jsonify({'location': filename})
-#
-#    # fail, image did not upload
-#    output = make_response(404)
-#    output.headers['Error'] = 'Image failed to upload'
-#    return output

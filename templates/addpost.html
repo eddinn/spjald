@@ -5,7 +5,8 @@
     <script>
         tinymce.init({
         selector: '#clientinfo',
-        height: 500,
+        height: 400,
+        width: 850,
         menubar: false,
         plugins: [
             'advlist lists charmap print preview hr anchor pagebreak spellchecker',
@@ -28,8 +29,10 @@
     </script>
     <h1>Add post</h1>
     <div class="row">
-        <div class="col-md-6">
-            {{ wtf.quick_form(form) }}
+        <div class="col-md-4">
+            {{ wtf.quick_form(form)|safe }}
+            <br />
+            <br />
         </div>
     </div>
 {% endblock %}

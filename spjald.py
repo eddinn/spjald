@@ -191,7 +191,7 @@ class RegistrationForm(FlaskForm):
 class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social Security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[Optional()])
+    clientemail = StringField('Email', validators=[DataRequired()])
     clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
@@ -200,7 +200,20 @@ class PostForm(FlaskForm):
                                validators=[Optional(), Length(max=2048)])
     submit = SubmitField('Submit')
     cancel = SubmitField('Cancel')
-    delete = SubmitField('Delete')
+
+
+class EditForm(FlaskForm):
+    clientname = StringField('Name', validators=[DataRequired()])
+    clientss = StringField('Social Security number', validators=[Optional()])
+    clientemail = StringField('Email', validators=[DataRequired()])
+    clientphone = StringField('Phone', validators=[DataRequired()])
+    clientaddress = StringField('Address', validators=[Optional()])
+    clientzip = StringField('ZIP', validators=[Optional()])
+    clientcity = StringField('City', validators=[Optional()])
+    clientinfo = TextAreaField('Info',
+                               validators=[Optional(), Length(max=2048)])
+    submit = SubmitField('Submit')
+    cancel = SubmitField('Cancel')
 
 
 # Routes
@@ -242,6 +255,33 @@ def addpost():
         else:
             return redirect(url_for('index'))
     return render_template('addpost.html', title='Add Post', form=form)
+
+
+@app.route('/editpost/<int:clientid>', methods=['GET', 'POST'])
+@login_required
+def editpost(clientid):
+    qry = Post.query.filter_by(clientid=clientid).first()
+    form = EditForm(request.form, obj=qry)
+    if form.validate_on_submit():
+        if form.submit.data:
+            form.populate_obj(qry)
+            db.session.commit()
+            flash('Your changes have been saved.')
+            return redirect(url_for('index', clientid=clientid))
+        else:
+            return redirect(url_for('index'))
+    return render_template('editpost.html', title='Edit post',
+                           form=form, clientid=clientid)
+
+
+@app.route('/deletepost/<int:clientid>', methods=['GET', 'POST'])
+@login_required
+def deletepost(clientid):
+    qry = Post.query.filter_by(clientid=clientid).first()
+    db.session.delete(qry)
+    db.session.commit()
+    flash('Post successfully deleted!')
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -329,30 +369,3 @@ def unfollow(username):
     db.session.commit()
     flash('You are not following {}.'.format(username))
     return redirect(url_for('user', username=username))
-
-
-@app.route('/editpost/<int:clientid>', methods=['GET', 'POST'])
-@login_required
-def editpost(clientid):
-    qry = Post.query.filter_by(clientid=clientid).first()
-    form = PostForm(request.form, obj=qry)
-    if form.validate_on_submit():
-        if form.submit.data:
-            form.populate_obj(qry)
-            db.session.commit()
-            flash('Your changes have been saved.')
-            return redirect(url_for('index', clientid=clientid))
-        else:
-            return redirect(url_for('index'))
-    return render_template('editpost.html', title='Edit post',
-                           form=form, clientid=clientid)
-
-
-@app.route('/deletepost/<int:clientid>', methods=['GET', 'POST'])
-@login_required
-def deletepost(clientid):
-    qry = Post.query.filter_by(clientid=clientid).first()
-    db.session.delete(qry)
-    db.session.commit()
-    flash('Post successfully deleted!')
-    return redirect(url_for('index'))

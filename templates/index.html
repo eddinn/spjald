@@ -11,12 +11,12 @@
             <ul class="pager">
                 <li class="previous{% if not prev_url %} disabled{% endif %}">
                     <a href="{{ prev_url or '#' }}">
-                        <span aria-hidden="true">&larr;</span> Newer posts
+                        <span aria-hidden="true"><i class="fas fa-angle-left"></i></span> Newer
                     </a>
                 </li>
                 <li class="next{% if not next_url %} disabled{% endif %}">
                     <a href="{{ next_url or '#' }}">
-                        Older posts <span aria-hidden="true">&rarr;</span>
+                        Older <span aria-hidden="true"><i class="fas fa-angle-right"></i></span>
                     </a>
                 </li>
             </ul>

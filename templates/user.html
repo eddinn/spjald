@@ -7,14 +7,14 @@
             </td>
             <td>
                 <p>
-                    <h4><b>User:</b> {{ user.name }} - {{ user.username }}</h4>
-                    <h4><b>Email:</b> {{ user.email }}</h4>
+                    <h4><i class="fas fa-user fa-sm"></i> {{ user.name }} - {{ user.username }}</h4>
+                    <h4><i class="fas fa-envelope fa-sm"></i> {{ user.email }}</h4>
                 </p>
                 <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
                 {% if not current_user.is_following(user) %}
-                <p><a href="{{ url_for('follow', username=user.username) }}"><b>Follow</b></a></p>
+                <p><i class="fas fa-plus fa-sm"></i> <a href="{{ url_for('follow', username=user.username) }}"><b>Follow</b></a></p>
                 {% else %}
-                <p><a href="{{ url_for('unfollow', username=user.username) }}"><b>Unfollow</b></a></p>
+                <p><i class="fas fa-minus fa-sm"></i> <a href="{{ url_for('unfollow', username=user.username) }}"><b>Unfollow</b></a></p>
                 {% endif %}
             </td>
         </tr>
@@ -27,12 +27,12 @@
         <ul class="pager">
             <li class="previous{% if not prev_url %} disabled{% endif %}">
                 <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span> Newer posts
+                    <span aria-hidden="true"><i class="fas fa-angle-left"></i></span> Newer
                 </a>
             </li>
             <li class="next{% if not next_url %} disabled{% endif %}">
                 <a href="{{ next_url or '#' }}">
-                    Older posts <span aria-hidden="true">&rarr;</span>
+                    Older <span aria-hidden="true"><i class="fas fa-angle-right"></i></span>
                 </a>
             </li>
         </ul>

@@ -200,6 +200,7 @@ class PostForm(FlaskForm):
                                validators=[Optional(), Length(max=2048)])
     submit = SubmitField('Submit')
     cancel = SubmitField('Cancel')
+    delete = SubmitField('Delete')
 
 
 # Routes
@@ -340,8 +341,18 @@ def editpost(clientid):
             form.populate_obj(qry)
             db.session.commit()
             flash('Your changes have been saved.')
-            return redirect(url_for('editpost', clientid=clientid))
+            return redirect(url_for('index', clientid=clientid))
         else:
             return redirect(url_for('index'))
     return render_template('editpost.html', title='Edit post',
                            form=form, clientid=clientid)
+
+
+@app.route('/deletepost/<int:clientid>', methods=['GET', 'POST'])
+@login_required
+def deletepost(clientid):
+    qry = Post.query.filter_by(clientid=clientid).first()
+    db.session.delete(qry)
+    db.session.commit()
+    flash('Post successfully deleted!')
+    return redirect(url_for('index'))

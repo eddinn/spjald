@@ -202,20 +202,6 @@ class PostForm(FlaskForm):
     cancel = SubmitField('Cancel')
 
 
-class EditForm(FlaskForm):
-    clientname = StringField('Name', validators=[DataRequired()])
-    clientss = StringField('Social Security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired()])
-    clientphone = StringField('Phone', validators=[DataRequired()])
-    clientaddress = StringField('Address', validators=[Optional()])
-    clientzip = StringField('ZIP', validators=[Optional()])
-    clientcity = StringField('City', validators=[Optional()])
-    clientinfo = TextAreaField('Info',
-                               validators=[Optional(), Length(max=2048)])
-    submit = SubmitField('Submit')
-    cancel = SubmitField('Cancel')
-
-
 # Routes
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -261,7 +247,7 @@ def addpost():
 @login_required
 def editpost(clientid):
     qry = Post.query.filter_by(clientid=clientid).first()
-    form = EditForm(request.form, obj=qry)
+    form = PostForm(request.form, obj=qry)
     if form.validate_on_submit():
         if form.submit.data:
             form.populate_obj(qry)

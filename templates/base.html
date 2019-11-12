@@ -22,7 +22,6 @@
                     <li><a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('addpost') }}"><i class="fas fa-plus"></i> Add post</a></li>
-                    <li><a href="{{ url_for('search') }}"><i class="fas fa-search"></i> Search</a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">

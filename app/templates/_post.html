@@ -4,13 +4,17 @@
             <td width="70px">
                 <div style="height: auto; width: 200px;">
                     <b>Client id: {{ post.clientid }}</b><br />
+                    Added: {{ moment(post.timestamp).fromNow() }}<br />
+                    <hr style="width: auto; text-align: left; margin-left:20px; margin-top: 5px; margin-bottom: 5px; margin-right: 80px;">
                     {{ post.clientname }}<br />
                     {{ post.clientss }}<br />
                     {{ post.clientemail }}<br />
                     {{ post.clientphone }}<br />
                     {{ post.clientaddress }}<br />
-                    {{ post.clientzip }}, {{ post.clientcity }}<br />
-                    <p><a href="{{ url_for('editpost', clientid=post.clientid) }}"><i class="fas fa-edit"></i></a>&nbsp;&nbsp;&nbsp;<a href="{{ url_for('deletepost', clientid=post.clientid) }}"><i class="fas fa-trash-alt"></i></a></p>
+                    {{ post.clientzip }}, {{ post.clientcity }}<br /><br />
+                    <p>
+                        <a href="{{ url_for('editpost', clientid=post.clientid) }}"><i class="fas fa-edit"></i></a>&nbsp;&nbsp;&nbsp;<a href="{{ url_for('deletepost', clientid=post.clientid) }}"><i class="fas fa-trash-alt"></i></a>
+                    </p>
                 </div>
             </td>
             <td>
@@ -21,5 +25,4 @@
             </td>
         </tr>
     </table>
-    <hr style="width: 300px; text-align:left; margin-left:100;">
 </div>

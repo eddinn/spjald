@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import unittest
-from spjald import app, db, User, Post
+from app import app, db
+from app.models import User, Post
 
 
 class UserModelCase(unittest.TestCase):

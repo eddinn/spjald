@@ -1,20 +1,40 @@
 {% extends "base.html" %}
 
-{% block content %}
-    <table>
-        <tr valign="top">
-            <td><img src="{{ user.avatar(128) }}"></td>
-            <td><h1>User: {{user.name}} - {{ user.username }}</h1></td>
+{% block app_content %}
+    <table class="table table-hover">
+        <tr>
+            <td width="256px"><img src="{{ user.avatar(128) }}"></td>
+            </td>
+            <td>
+                <p>
+                    <h4><i class="fas fa-user fa-sm"></i> {{ user.name }} - {{ user.username }}</h4>
+                    <h4><i class="fas fa-envelope fa-sm"></i> {{ user.email }}</h4>
+                </p>
+                <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
+                {% if not current_user.is_following(user) %}
+                <p><i class="fas fa-plus fa-sm"></i> <a href="{{ url_for('follow', username=user.username) }}"><b>Follow</b></a></p>
+                {% else %}
+                <p><i class="fas fa-minus fa-sm"></i> <a href="{{ url_for('unfollow', username=user.username) }}"><b>Unfollow</b></a></p>
+                {% endif %}
+            </td>
         </tr>
     </table>
     <hr>
     {% for post in posts %}
         {% include '_post.html' %}
     {% endfor %}
-    {% if prev_url %}
-        <a href="{{ prev_url }}">Newer posts</a>
-    {% endif %}
-    {% if next_url %}
-        <a href="{{ next_url }}">Older posts</a>
-    {% endif %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true"><i class="fas fa-angle-left"></i></span> Newer
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Older <span aria-hidden="true"><i class="fas fa-angle-right"></i></span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}

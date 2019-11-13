@@ -17,6 +17,7 @@ from wtforms.validators import Optional, Length
 from hashlib import _hashlib
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from datetime import datetime
+from flask_bootstrap import Bootstrap
 
 
 app = Flask(__name__)
@@ -25,6 +26,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 loginm = LoginManager(app)
 loginm.login_view = 'login'
+bootstrap = Bootstrap(app)
 
 
 @loginm.user_loader
@@ -187,10 +189,10 @@ class RegistrationForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    clientname = StringField('Name', validators=[Optional()])
+    clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social Security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[Optional()])
-    clientphone = StringField('Phone', validators=[Optional()])
+    clientemail = StringField('Email', validators=[DataRequired()])
+    clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
@@ -239,6 +241,33 @@ def addpost():
         else:
             return redirect(url_for('index'))
     return render_template('addpost.html', title='Add Post', form=form)
+
+
+@app.route('/editpost/<int:clientid>', methods=['GET', 'POST'])
+@login_required
+def editpost(clientid):
+    qry = Post.query.filter_by(clientid=clientid).first()
+    form = PostForm(request.form, obj=qry)
+    if form.validate_on_submit():
+        if form.submit.data:
+            form.populate_obj(qry)
+            db.session.commit()
+            flash('Your changes have been saved.')
+            return redirect(url_for('index', clientid=clientid))
+        else:
+            return redirect(url_for('index'))
+    return render_template('editpost.html', title='Edit post',
+                           form=form, clientid=clientid)
+
+
+@app.route('/deletepost/<int:clientid>', methods=['GET', 'POST'])
+@login_required
+def deletepost(clientid):
+    qry = Post.query.filter_by(clientid=clientid).first()
+    db.session.delete(qry)
+    db.session.commit()
+    flash('Post successfully deleted!')
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -326,37 +355,3 @@ def unfollow(username):
     db.session.commit()
     flash('You are not following {}.'.format(username))
     return redirect(url_for('user', username=username))
-
-
-@app.route('/editpost/<int:clientid>', methods=['GET', 'POST'])
-@login_required
-def editpost(clientid):
-    qry = Post.query.filter_by(clientid=clientid).first()
-    form = PostForm(request.form, obj=qry)
-    if form.validate_on_submit():
-        if form.submit.data:
-            form.populate_obj(qry)
-            db.session.commit()
-            flash('Your changes have been saved.')
-            return redirect(url_for('editpost', clientid=clientid))
-        else:
-            return redirect(url_for('index'))
-    return render_template('editpost.html', title='Edit post',
-                           form=form, clientid=clientid)
-
-
-# @app.route('/imageuploader', methods=['POST'])
-# @login_required
-# def imageuploader():
-#    file = request.files.get('file')
-#    if file:
-#        filename = file.filename.lower()
-#        if ext in ['jpg', 'gif', 'png', 'jpeg']:
-#            img_fullpath = os.path.join(app.config['UPLOADED_PATH'], filename)
-#            file.save(img_fullpath)
-#            return jsonify({'location': filename})
-#
-#    # fail, image did not upload
-#    output = make_response(404)
-#    output.headers['Error'] = 'Image failed to upload'
-#    return output

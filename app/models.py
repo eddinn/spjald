@@ -75,8 +75,9 @@ class User(UserMixin, db.Model):
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
-                            algorithms=['HS256'])['reset_password']
+            id = jwt.decode(  # pylint: disable=redefined-builtin
+                token, app.config['SECRET_KEY'],
+                algorithms=['HS256'])['reset_password']
         except Exception as e:
             print("EXCEPTION FORMAT PRINT:\n{}".format(e))
             return

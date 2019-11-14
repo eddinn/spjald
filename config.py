@@ -21,3 +21,4 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['root@eddinn.net']
     POSTS_PER_PAGE = 25
+    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')

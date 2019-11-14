@@ -1,17 +1,27 @@
+#!/usr/bin/env python
 from datetime import datetime, timedelta
 import unittest
-from app import app, db
+from app import create_app, db
 from app.models import User, Post
+from config import Config
+
+
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 
 class UserModelCase(unittest.TestCase):
     def setUp(self):
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        self.app_context.pop()
 
     def test_password_hashing(self):
         u = User(username='susan')
@@ -58,11 +68,11 @@ class UserModelCase(unittest.TestCase):
 
         # create four posts
         now = datetime.utcnow()
-        p1 = Post(clientname="Test4", clientinfo="post from john", author=u1,
+        p1 = Post(clientname="Test1", clientinfo="post from john", author=u1,
                   timestamp=now + timedelta(seconds=1))
-        p2 = Post(clientname="Test4", clientinfo="post from susan", author=u2,
+        p2 = Post(clientname="Test2", clientinfo="post from susan", author=u2,
                   timestamp=now + timedelta(seconds=4))
-        p3 = Post(clientname="Test4", clientinfo="post from mary", author=u3,
+        p3 = Post(clientname="Test3", clientinfo="post from mary", author=u3,
                   timestamp=now + timedelta(seconds=3))
         p4 = Post(clientname="Test4", clientinfo="post from david", author=u4,
                   timestamp=now + timedelta(seconds=2))

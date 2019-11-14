@@ -81,7 +81,8 @@ class User(UserMixin, db.Model):
                 token, current_app.config['SECRET_KEY'],
                 algorithms=['HS256'])['reset_password']
         except Exception as e:
-            return print("EXCEPTION FORMAT PRINT:\n{}".format(e))
+            print("EXCEPTION FORMAT PRINT:\n{}".format(e))
+            return
         return User.query.get(id)
 
 

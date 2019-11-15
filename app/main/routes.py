@@ -55,27 +55,27 @@ def addpost():
     return render_template('addpost.html', title='Add Post', form=form)
 
 
-@bp.route('/editpost/<int:clientid>', methods=['GET', 'POST'])
+@bp.route('/editpost/<int:id>', methods=['GET', 'POST'])
 @login_required
-def editpost(clientid):
-    qry = Post.query.filter_by(clientid=clientid).first()
+def editpost(id):
+    qry = Post.query.filter_by(id=id).first()
     form = PostForm(request.form, obj=qry)
     if form.validate_on_submit():
         if form.submit.data:
             form.populate_obj(qry)
             db.session.commit()
             flash('Your changes have been saved.')
-            return redirect(url_for('main.index', clientid=clientid))
+            return redirect(url_for('main.index', id=id))
         else:
             return redirect(url_for('main.index'))
     return render_template('editpost.html', title='Edit post',
-                           form=form, clientid=clientid)
+                           form=form, id=id)
 
 
-@bp.route('/deletepost/<int:clientid>', methods=['GET', 'POST'])
+@bp.route('/deletepost/<int:id>', methods=['GET', 'POST'])
 @login_required
-def deletepost(clientid):
-    qry = Post.query.filter_by(clientid=clientid).first()
+def deletepost(id):
+    qry = Post.query.filter_by(id=id).first()
     db.session.delete(qry)
     db.session.commit()
     flash('Post successfully deleted!')

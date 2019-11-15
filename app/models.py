@@ -141,7 +141,7 @@ class Post(SearchableMixin, db.Model):
     clientaddress = db.Column(db.String(100), index=True)
     clientcity = db.Column(db.String(32), index=True)
     clientzip = db.Column(db.String(8), index=True)
-    clientinfo = db.Column(db.Text, index=True)
+    clientinfo = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 

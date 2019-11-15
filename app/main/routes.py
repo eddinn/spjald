@@ -57,7 +57,7 @@ def addpost():
 
 @bp.route('/editpost/<int:id>', methods=['GET', 'POST'])
 @login_required
-def editpost(id):
+def editpost(id):  # pylint: disable=redefined-builtin
     qry = Post.query.filter_by(id=id).first()
     form = PostForm(request.form, obj=qry)
     if form.validate_on_submit():
@@ -74,7 +74,7 @@ def editpost(id):
 
 @bp.route('/deletepost/<int:id>', methods=['GET', 'POST'])
 @login_required
-def deletepost(id):
+def deletepost(id):  # pylint: disable=redefined-builtin
     qry = Post.query.filter_by(id=id).first()
     db.session.delete(qry)
     db.session.commit()

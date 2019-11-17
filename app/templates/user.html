@@ -11,9 +11,9 @@
                 </p>
                 <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
                 {% if not current_user.is_following(user) %}
-                <p><i class="fas fa-plus fa-sm"></i> <a href="{{ url_for('main.follow', _external=True, username=user.username) }}"><b>Follow</b></a></p>
+                <p><i class="fas fa-plus fa-sm"></i> <a href="{{ url_for('main.follow', username=user.username) }}"><b>Follow</b></a></p>
                 {% else %}
-                <p><i class="fas fa-minus fa-sm"></i> <a href="{{ url_for('main.unfollow', _external=True, username=user.username) }}"><b>Unfollow</b></a></p>
+                <p><i class="fas fa-minus fa-sm"></i> <a href="{{ url_for('main.unfollow', username=user.username) }}"><b>Unfollow</b></a></p>
                 {% endif %}
             </td>
         </tr>

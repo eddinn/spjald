@@ -135,7 +135,7 @@ def unfollow(username):
 @login_required
 def search():
     if not g.search_form.validate():
-        return redirect(url_for('main.index', _external=True))
+        return redirect(url_for('main.index'))
     page = request.args.get('page', 1, type=int)
     posts, total = Post.search(g.search_form.q.data, page,
                                current_app.config['POSTS_PER_PAGE'])

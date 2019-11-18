@@ -84,7 +84,7 @@ def reset_password(token):
 @bp.route('/edit_profile/', methods=['GET', 'POST'])
 def edit_profile():
     user = current_user.username
-    form = EditProfileForm()
+    form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.username = form.username.data
         user.set_password(form.password.data)

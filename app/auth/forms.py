@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from wtforms.validators import DataRequired, ValidationError, \
+    Optional, Email, EqualTo
 from app.models import User
 
 
@@ -48,9 +49,9 @@ class ResetPasswordForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[Optional()])
     password2 = PasswordField(
-        'Repeat password', validators=[DataRequired(), EqualTo('password')])
+        'Repeat password', validators=[Optional(), EqualTo('password')])
     submit = SubmitField('Submit')
 
     def __init__(self, original_username, *args, **kwargs):

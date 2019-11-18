@@ -15,6 +15,9 @@
                 {% else %}
                 <p><i class="fas fa-minus fa-sm"></i> <a href="{{ url_for('main.unfollow', username=user.username) }}"><b>Unfollow</b></a></p>
                 {% endif %}
+                {% if user == current_user %}
+                <p><a href="{{ url_for('auth.edit_profile') }}">Edit profile</a></p>
+                {% endif %}
             </td>
         </tr>
     </table>

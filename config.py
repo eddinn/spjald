@@ -22,4 +22,4 @@ class Config(object):
     ADMINS = ['root@eddinn.net']
     POSTS_PER_PAGE = 25
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-    SERVER_NAME = os.environ.get('SERVER_NAME')
+    # SERVER_NAME = os.environ.get('SERVER_NAME')

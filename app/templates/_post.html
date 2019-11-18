@@ -4,7 +4,8 @@
             <td width="70px">
                 <div style="height: auto; width: 200px;">
                     <b>Client id: {{ post.id }}</b><br />
-                    Added: {{ moment(post.timestamp).fromNow() }}<br />
+                    <a href="{{ url_for('user', username=post.author.username) }}">{{ post.author.username }} </a>
+                    added: {{ moment(post.timestamp).fromNow() }}<br />
                     <hr style="width: auto; text-align: left; margin-left:20px; margin-top: 5px; margin-bottom: 5px; margin-right: 80px;">
                     {{ post.clientname }}<br />
                     {{ post.clientss }}<br />

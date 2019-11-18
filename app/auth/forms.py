@@ -8,8 +8,8 @@ from app.models import User
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
+    remember_me = BooleanField('Remember me')
+    submit = SubmitField('Sign in')
 
 
 class RegistrationForm(FlaskForm):
@@ -18,7 +18,7 @@ class RegistrationForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
-        'Repeat Password', validators=[DataRequired(), EqualTo('password')])
+        'Repeat password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
     @staticmethod
@@ -43,4 +43,12 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Request Password Reset')
+    submit = SubmitField('Request password reset')
+
+
+class EditProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField(
+        'Repeat password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Submit')

@@ -2,7 +2,7 @@ from app import db
 from app.auth import bp
 from flask import request, render_template, flash, redirect, url_for
 from app.auth.forms import LoginForm, RegistrationForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
+    ResetPasswordRequestForm, ResetPasswordForm, EditProfileForm
 from app.models import User
 from app.auth.email import send_password_reset_email
 from flask_login import login_user, logout_user, current_user
@@ -79,3 +79,19 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
+
+
+@bp.route('/edit_profile/', methods=['GET', 'POST'])
+def edit_profile():
+    user = current_user.username
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('auth.edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+    return render_template('auth.edit_profile.html', title='Edit profile',
+                           form=form)

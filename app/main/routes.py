@@ -78,7 +78,7 @@ def deletepost(id):  # pylint: disable=redefined-builtin
     qry = Post.query.filter_by(id=id).first()
     db.session.delete(qry)
     db.session.commit()
-    flash('Post successfully deleted!')
+    flash('Client successfully deleted!')
     return redirect(url_for('main.index'))
 
 

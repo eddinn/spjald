@@ -95,7 +95,8 @@ def user(username):
     prev_url = url_for('main.user', username=user.username,
                        page=posts.prev_num) \
         if posts.has_prev else None
-    return render_template('user.html', title='User profile', user=user, posts=posts.items,
+    return render_template('user.html', title='User profile',
+                           user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
 
 

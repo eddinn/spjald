@@ -1,6 +1,6 @@
 from app import db
 from app.auth import bp
-from app.main import bp
+from app.main.routes import user
 from flask import request, render_template, flash, redirect, url_for
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm, EditProfileForm

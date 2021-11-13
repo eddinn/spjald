@@ -1,5 +1,6 @@
 from app import db
 from app.auth import bp
+from app.main import bp
 from flask import request, render_template, flash, redirect, url_for
 from app.auth.forms import LoginForm, RegistrationForm, \
     ResetPasswordRequestForm, ResetPasswordForm, EditProfileForm
@@ -87,7 +88,7 @@ def edit_profile():
     user = User.verify_reset_password_token(token)
     form = EditProfileForm(current_user.username)
     if form.cancel.data:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.user'))
     if form.validate_on_submit():
         current_user.name = form.name.data
         current_user.username = form.username.data

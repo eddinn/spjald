@@ -85,8 +85,7 @@ def reset_password(token):
 def edit_profile():
     token = current_user.get_reset_password_token()
     user = User.verify_reset_password_token(token)
-    form = EditProfileForm(current_user.name, current_user.username,
-                           current_user.email)
+    form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
         current_user.name = form.name.data
         current_user.username = form.username.data

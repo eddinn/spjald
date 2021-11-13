@@ -52,7 +52,7 @@ def addpost():
             return redirect(url_for('main.addpost'))
         else:
             return redirect(url_for('main.index'))
-    return render_template('addpost.html', title='Add Post', form=form)
+    return render_template('addpost.html', title='Add client', form=form)
 
 
 @bp.route('/editpost/<int:id>', methods=['GET', 'POST'])
@@ -68,7 +68,7 @@ def editpost(id):  # pylint: disable=redefined-builtin
             return redirect(url_for('main.index', id=id))
         else:
             return redirect(url_for('main.index'))
-    return render_template('editpost.html', title='Edit post',
+    return render_template('editpost.html', title='Edit client',
                            form=form, id=id)
 
 
@@ -95,7 +95,7 @@ def user(username):
     prev_url = url_for('main.user', username=user.username,
                        page=posts.prev_num) \
         if posts.has_prev else None
-    return render_template('user.html', user=user, posts=posts.items,
+    return render_template('user.html', title='User profile', user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
 
 

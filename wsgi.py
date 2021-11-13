@@ -7,5 +7,5 @@ from spjald import app as application
 
 # logging.basicConfig(stream=sys.stderr)
 logging.basicConfig(filename='/var/www/html/fegurdspa/html/spjald/spjald.log',
-                    level=logging.ERROR)
+                    level=logging.INFO)
 sys.path.insert(0, "/var/www/html/fegurdspa/html/spjald")

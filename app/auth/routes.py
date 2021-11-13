@@ -87,7 +87,7 @@ def edit_profile():
     user = User.verify_reset_password_token(token)
     form = EditProfileForm(current_user.username)
     if form.cancel.data:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('user.html'))
     if form.validate_on_submit():
         current_user.name = form.name.data
         current_user.username = form.username.data

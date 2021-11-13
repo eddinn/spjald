@@ -48,7 +48,9 @@ class ResetPasswordForm(FlaskForm):
 
 
 class EditProfileForm(FlaskForm):
+    name = StringField('Name', validators=[Optional()])
     username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Optional()])
     password2 = PasswordField(
         'Repeat password', validators=[Optional(), EqualTo('password')])

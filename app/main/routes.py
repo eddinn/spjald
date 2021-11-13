@@ -35,6 +35,8 @@ def index():
 @login_required
 def addpost():
     form = PostForm()
+    if form.cancel.data:
+        return redirect(url_for('main.index'))
     if form.validate_on_submit():
         if form.submit.data:
             post = Post(clientname=form.clientname.data,

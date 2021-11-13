@@ -15,8 +15,9 @@ class PostForm(FlaskForm):
     clientcity = StringField('City', validators=[Optional()])
     clientinfo = TextAreaField('Info',
                                validators=[Optional(), Length(max=2048)])
-    submit = SubmitField('Submit')
-    cancel = SubmitField('Cancel')
+    submit = SubmitField(label='Submit')
+    cancel = SubmitField(label='Cancel',
+                         render_kw={'formnovalidate': True})
 
 
 class SearchForm(FlaskForm):

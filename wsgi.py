@@ -6,6 +6,6 @@ from spjald import app as application
 
 
 # logging.basicConfig(stream=sys.stderr)
-logging.basicConfig(filename='/var/www/html/fegurdspa/html/spjald/spjald.log',
+logging.basicConfig(filename='/var/log/spjald/spjald.log',
                     level=logging.INFO)
 sys.path.insert(0, "/var/www/html/fegurdspa/html/spjald")

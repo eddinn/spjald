@@ -10,8 +10,8 @@ from app.models import Post
 class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired(), 
-                               EqualTo('clientemail'), Email()])
+    clientemail = StringField('Email', validators=[DataRequired(),
+                                EqualTo('clientemail'), Email()])
     clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
@@ -48,7 +48,7 @@ class EditPostForm(FlaskForm):
                                Length(max=2048)])
     submit = SubmitField(label='Submit')
     cancel = SubmitField(label='Cancel',
-        render_kw={'formnovalidate': True})
+                         render_kw={'formnovalidate': True})
 
 
 class SearchForm(FlaskForm):

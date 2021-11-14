@@ -29,8 +29,8 @@ class PostForm(FlaskForm):
 
     @staticmethod
     def validate_clientemail(form, clientemail):
-        clientemail = Post.query.filter_by(clientemail=clientemail.data) \
-                                            .first()
+        clientemail = \
+            Post.query.filter_by(clientemail=clientemail.data).first()
         if clientemail is not None:
             raise ValidationError('Email already exists, please use another.')
 

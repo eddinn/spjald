@@ -11,7 +11,7 @@ class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
     clientemail = StringField('Email', validators=[DataRequired(),
-                                EqualTo('clientemail'), Email()])
+                              EqualTo('clientemail'), Email()])
     clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])

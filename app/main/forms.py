@@ -1,8 +1,8 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Email, EqualTo, Optional, Length, \
-    ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, Optional, \
+    Length, ValidationError
 from app.models import Post
 
 
@@ -10,17 +10,16 @@ from app.models import Post
 class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired(), EqualTo( \
-        'clientemail'), Email()])
+    clientemail = StringField('Email', validators=[DataRequired(), 
+                               EqualTo('clientemail'), Email()])
     clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
-    clientinfo = TextAreaField('Info', \
-        validators=[Optional(), Length(max=2048)])
+    clientinfo = TextAreaField('Info', validators=[Optional(),
+                               Length(max=2048)])
     submit = SubmitField(label='Submit')
-    cancel = SubmitField(label='Cancel',
-        render_kw={'formnovalidate': True})
+    cancel = SubmitField(label='Cancel', render_kw={'formnovalidate': True})
 
     @staticmethod
     def validate_clientss(form, clientss):
@@ -35,17 +34,18 @@ class PostForm(FlaskForm):
         if clientemail is not None:
             raise ValidationError('Email already registered.')
 
+
 class EditPostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired(), EqualTo( \
-        'clientemail'), Email()])
+    clientemail = StringField('Email', validators=[DataRequired(),
+                              EqualTo('clientemail'), Email()])
     clientphone = StringField('Phone', validators=[DataRequired()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
-    clientinfo = TextAreaField('Info',  \
-        validators=[Optional(), Length(max=2048)])
+    clientinfo = TextAreaField('Info', validators=[Optional(),
+                               Length(max=2048)])
     submit = SubmitField(label='Submit')
     cancel = SubmitField(label='Cancel',
         render_kw={'formnovalidate': True})

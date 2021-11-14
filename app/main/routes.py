@@ -1,6 +1,6 @@
 from app import db
 from app.main import bp
-from app.main.forms import PostForm
+from app.main.forms import PostForm, EditPostForm
 from app.models import User, Post
 from app.main.forms import SearchForm
 from flask import request, render_template, flash, redirect, \
@@ -61,7 +61,7 @@ def addpost():
 @login_required
 def editpost(id):  # pylint: disable=redefined-builtin
     qry = Post.query.filter_by(id=id).first()
-    form = PostForm(request.form, obj=qry)
+    form = EditPostForm(request.form, obj=qry)
     if form.validate_on_submit():
         if form.submit.data:
             form.populate_obj(qry)

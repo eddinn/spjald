@@ -1,7 +1,9 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Optional, Length
+from wtforms.validators import DataRequired, Optional, Length, \
+    ValidationError
+from app.models import Post
 
 
 # Forms
@@ -18,6 +20,19 @@ class PostForm(FlaskForm):
     submit = SubmitField(label='Submit')
     cancel = SubmitField(label='Cancel',
                          render_kw={'formnovalidate': True})
+
+    @staticmethod
+    def validate_clientss(form, clientss):
+        clientss = Post.query.filter_by(clientss=clientss.data).first()
+        if clientss is not None:
+            raise ValidationError('Social security number must be unique.')
+
+    @staticmethod
+    def validate_clientemail(form, clientemail):
+        clientemail = Post.query.filter_by(clientemail=clientemail.data) \
+                                               .first()
+        if clientemail is not None:
+            raise ValidationError('Email already exists, please use another.')
 
 
 class SearchForm(FlaskForm):

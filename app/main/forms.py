@@ -10,9 +10,9 @@ from app.models import Post
 class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired(),
+    clientemail = StringField('Email', validators=[Optional(),
                               EqualTo('clientemail'), Email()])
-    clientphone = StringField('Phone', validators=[DataRequired()])
+    clientphone = StringField('Phone', validators=[Optional()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
@@ -38,9 +38,9 @@ class PostForm(FlaskForm):
 class EditPostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[DataRequired(),
+    clientemail = StringField('Email', validators=[Optional(),
                               EqualTo('clientemail'), Email()])
-    clientphone = StringField('Phone', validators=[DataRequired()])
+    clientphone = StringField('Phone', validators=[Optional()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])

@@ -136,7 +136,7 @@ class Post(SearchableMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     clientname = db.Column(db.String(64), index=True)
     clientss = db.Column(db.String(11), index=True, unique=True)
-    clientemail = db.Column(db.String(128), index=True, unique=True)
+    clientemail = db.Column(db.String(128), index=True)
     clientphone = db.Column(db.String(24), index=True)
     clientaddress = db.Column(db.String(100), index=True)
     clientcity = db.Column(db.String(32), index=True)

@@ -1,7 +1,20 @@
 from flask import current_app
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from app.models import Post
 
+def search_posts(session: Session, search_term: str):
+    search_pattern = f"%{search_term.lower()}%"
+    results = session.query(Post).filter(
+        or_(
+            Post.title.ilike(search_pattern),
+            Post.body.ilike(search_pattern),
+            # Add other fields here as needed
+        )
+    ).all()
+    return results
 
-def add_to_index(index, model):
+''' def add_to_index(index, model):
     if not current_app.elasticsearch:
         return
     payload = {}
@@ -25,3 +38,5 @@ def query_index(index, query, page, per_page):
               'from': (page - 1) * per_page, 'size': per_page})
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     return ids, search['hits']['total']['value']
+'''
+ 

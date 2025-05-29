@@ -2,10 +2,10 @@
 import os
 import sys
 import logging
-from spjald import app as application
+from app import create_app
 
+application = create_app()
 
-# logging.basicConfig(stream=sys.stderr)
 logging.basicConfig(filename='/var/log/spjald/spjald.log',
                     level=logging.INFO)
 sys.path.insert(0, "/var/www/html/fegurdspa/html/spjald")

@@ -1,25 +1,28 @@
-version: 2
+version: 2.1
+
 jobs:
-  build:
+  test:
     docker:
-      - image: circleci/python:3.7
-
-    working_directory: ~/repo
-
+      - image: cimg/python:3.12
     steps:
-      # Step 1: obtain repo from GitHub
       - checkout
-      # Step 2: install dependencies
       - run:
-          name: install dependencies
+          name: Install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - run:
+          name: Lint
+          command: |
             pip install flake8
-      # Step 3: run linter and tests
+            flake8 . --exclude=venv*,migrations* --ignore=E402,F401 --statistics
       - run:
-          name: run tests
+          name: Run tests
           command: |
-            . venv/bin/activate
-            flake8 --exclude=venv*,migrations* --ignore=E402,F401 --statistics
+            if [ -f tests/run_tests.sh ]; then bash tests/run_tests.sh; fi
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test

@@ -7,19 +7,18 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 
 class Config(object):
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-willnever-guess-the-supersecret-key'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.environ.get("SECRET_KEY") or \
-        "you-willnever-guess-the-supersecret-key"
     DEBUG = False
     CSRF_ENABLED = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '25'))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'false').lower() in ['true', 'on', '1']
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    ADMINS = ['root@eddinn.net']
-    POSTS_PER_PAGE = 25
-    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
-    # SERVER_NAME = os.environ.get('SERVER_NAME')
+    ADMINS = [x.strip() for x in os.environ.get('ADMINS', '').split(',') if x]
+    POSTS_PER_PAGE = int(os.environ.get('POSTS_PER_PAGE', 10))
+    # Add any other config settings as needed
+    

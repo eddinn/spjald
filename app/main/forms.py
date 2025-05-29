@@ -1,33 +1,28 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Email, EqualTo, Optional, Length, ValidationError
+from wtforms.validators import DataRequired, Email, Optional, Length, ValidationError
 from app.models import Post
-
-# If you're using wtf-tinymce for the clientinfo field, keep it as it is in your current repo.
 
 class PostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[Optional(), EqualTo('clientemail'), Email()])
+    clientemail = StringField('Email', validators=[Optional(), Email()])
     clientphone = StringField('Phone', validators=[Optional()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
-    clientinfo = TextAreaField('Info', validators=[Optional(), Length(max=2048)])  # Or TinyMCEField if you have it
+    clientinfo = TextAreaField('Info', validators=[Optional(), Length(max=2048)])  # Or TinyMCEField if you use it
     submit = SubmitField(label='Submit')
     cancel = SubmitField(label='Cancel', render_kw={'formnovalidate': True})
 
-    @staticmethod
-    def validate_clientss(form, clientss):
-        # Only checks if a value was entered
+    def validate_clientss(self, clientss):
         if clientss.data:
             existing = Post.query.filter_by(clientss=clientss.data).first()
             if existing is not None:
                 raise ValidationError('Social security number must be unique.')
 
-    @staticmethod
-    def validate_clientemail(form, clientemail):
+    def validate_clientemail(self, clientemail):
         if clientemail.data:
             existing = Post.query.filter_by(clientemail=clientemail.data).first()
             if existing is not None:
@@ -36,12 +31,12 @@ class PostForm(FlaskForm):
 class EditPostForm(FlaskForm):
     clientname = StringField('Name', validators=[DataRequired()])
     clientss = StringField('Social security number', validators=[Optional()])
-    clientemail = StringField('Email', validators=[Optional(), EqualTo('clientemail'), Email()])
+    clientemail = StringField('Email', validators=[Optional(), Email()])
     clientphone = StringField('Phone', validators=[Optional()])
     clientaddress = StringField('Address', validators=[Optional()])
     clientzip = StringField('ZIP', validators=[Optional()])
     clientcity = StringField('City', validators=[Optional()])
-    clientinfo = TextAreaField('Info', validators=[Optional(), Length(max=2048)])  # Or TinyMCEField if you have it
+    clientinfo = TextAreaField('Info', validators=[Optional(), Length(max=2048)])  # Or TinyMCEField if you use it
     submit = SubmitField(label='Submit')
     cancel = SubmitField(label='Cancel', render_kw={'formnovalidate': True})
 
@@ -50,6 +45,7 @@ class SearchForm(FlaskForm):
     submit = SubmitField('Search')
 
     def __init__(self, *args, **kwargs):
+        # Use GET form data (request.args) for searching by default
         if 'formdata' not in kwargs:
             kwargs['formdata'] = request.args
         super().__init__(*args, **kwargs)

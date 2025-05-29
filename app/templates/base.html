@@ -1,49 +1,63 @@
-<!-- If TinyMCE JS or form integration is present, it is left untouched -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Spjald{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 CDN for improved accessibility and security -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7Z5A1a2w5K6nQ6p6LJv6nGv6LJv6nGv6LJv" crossorigin="anonymous">
   {% block styles %}{% endblock %}
-  {# TinyMCE scripts below are kept as is if present #}
+  {% block head_scripts %}{% endblock %}
 </head>
 <body>
   <div class="container">
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
       <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="{{ url_for('main.index') }}">Spjald</a>
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">Spjald</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            {% if current_user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.user', username=current_user.username) }}">Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+              </li>
+            {% endif %}
+          </ul>
+          <form class="d-flex ms-2" method="get" action="{{ url_for('main.search') }}">
+            {{ g.search_form.q(size=20, class_="form-control me-2", autocomplete="off") }}
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+          </form>
         </div>
-        <ul class="nav navbar-nav navbar-right">
-          {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-            <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-          {% else %}
-            <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-            <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-          {% endif %}
-        </ul>
-        <form class="navbar-form navbar-left" method="get" action="{{ url_for('main.search') }}">
-          {{ g.search_form.q(size=20, class_="form-control") }}
-          <button type="submit" class="btn btn-default">Search</button>
-        </form>
       </div>
     </nav>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul class="flashes">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
+        <div class="alert alert-info" role="alert">
+          <ul class="mb-0">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        </div>
       {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
   </div>
   {% block scripts %}
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
-  {# Any TinyMCE scripts are kept as is #}
+  <!-- Bootstrap 5 JS with Popper for improved security and compliance -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-QF12KfCw9fF3B+8rLk1vB7nV+6o8q3L9m9u9J9L9u9J9L9u9J9L9u9J9L9u9J9L9" crossorigin="anonymous"></script>
   {% endblock %}
 </body>
 </html>

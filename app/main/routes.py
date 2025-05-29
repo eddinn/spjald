@@ -6,12 +6,10 @@ from flask import request, render_template, flash, redirect, url_for, current_ap
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
-
 @bp.before_app_request
 def before_request():
     if current_user.is_authenticated:
         g.search_form = SearchForm()
-
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -26,7 +24,6 @@ def index():
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
-
 @bp.route('/addpost', methods=['GET', 'POST'])
 @login_required
 def addpost():
@@ -34,52 +31,45 @@ def addpost():
     if form.cancel.data:
         return redirect(url_for('main.index'))
     if form.validate_on_submit():
-        if form.submit.data:
-            post = Post(
-                clientname=form.clientname.data,  # type: ignore
-                clientss=form.clientss.data,  # type: ignore
-                clientemail=form.clientemail.data,  # type: ignore
-                clientphone=form.clientphone.data,  # type: ignore
-                clientaddress=form.clientaddress.data,  # type: ignore
-                clientzip=form.clientzip.data,  # type: ignore
-                clientcity=form.clientcity.data,  # type: ignore
-                clientinfo=form.clientinfo.data,  # type: ignore
-                author=current_user  # type: ignore
-            )
-            db.session.add(post)
-            db.session.commit()
-            flash('Client data successfully added!')
-            return redirect(url_for('main.addpost'))
-        else:
-            return redirect(url_for('main.index'))
+        post = Post(
+            clientname=form.clientname.data,
+            clientss=form.clientss.data,
+            clientemail=form.clientemail.data,
+            clientphone=form.clientphone.data,
+            clientaddress=form.clientaddress.data,
+            clientzip=form.clientzip.data,
+            clientcity=form.clientcity.data,
+            clientinfo=form.clientinfo.data,
+            author=current_user
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash('Client data successfully added!')
+        return redirect(url_for('main.addpost'))
     return render_template('addpost.html', title='Add client', form=form)
-
 
 @bp.route('/editpost/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editpost(id):
-    post = Post.query.filter_by(id=id).first()
+    post = Post.query.filter_by(id=id).first_or_404()
     form = EditPostForm(obj=post)
+    if form.cancel.data:
+        return redirect(url_for('main.index'))
     if form.validate_on_submit():
-        if form.submit.data:
-            form.populate_obj(post)
-            db.session.commit()
-            flash('Your changes have been saved.')
-            return redirect(url_for('main.index', id=id))
-        else:
-            return redirect(url_for('main.index'))
+        form.populate_obj(post)
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('main.index'))
     return render_template('editpost.html', title='Edit client', form=form, id=id)
-
 
 @bp.route('/deletepost/<int:id>', methods=['GET', 'POST'])
 @login_required
 def deletepost(id):
-    post = Post.query.filter_by(id=id).first()
+    post = Post.query.filter_by(id=id).first_or_404()
     db.session.delete(post)
     db.session.commit()
     flash('Client successfully deleted!')
     return redirect(url_for('main.index'))
-
 
 @bp.route('/user/<username>')
 @login_required
@@ -93,7 +83,6 @@ def user(username):
     return render_template('user.html', title='User profile',
                            user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
-
 
 @bp.route('/search')
 @login_required

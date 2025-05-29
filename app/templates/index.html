@@ -1,23 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<h1>Client List</h1>
-<a href="{{ url_for('main.addpost') }}" class="btn btn-primary">Add Client</a>
-<ul>
-  {% for post in posts %}
-    <li>
-      <a href="{{ url_for('main.editpost', id=post.id) }}">{{ post.clientname }}</a>
-      ({{ post.clientemail }})<br>
-      {{ post.clientinfo }}
-    </li>
-  {% endfor %}
-</ul>
-<div class="pagination">
-  {% if prev_url %}
-    <a href="{{ prev_url }}">Previous</a>
-  {% endif %}
-  {% if next_url %}
-    <a href="{{ next_url }}">Next</a>
-  {% endif %}
-</div>
+  <h1>Client List</h1>
+  <a href="{{ url_for('main.addpost') }}" class="btn btn-primary mb-3">Add Client</a>
+  <ul class="list-group mb-4">
+    {% for post in posts %}
+      <li class="list-group-item">
+        <a href="{{ url_for('main.editpost', id=post.id) }}">{{ post.clientname|e }}</a>
+        ({{ post.clientemail|e }})<br>
+        {{ post.clientinfo|safe }}
+      </li>
+    {% endfor %}
+  </ul>
+  <nav aria-label="Pagination">
+    <ul class="pagination">
+      {% if prev_url %}
+        <li class="page-item">
+          <a class="page-link" href="{{ prev_url }}">Previous</a>
+        </li>
+      {% endif %}
+      {% if next_url %}
+        <li class="page-item">
+          <a class="page-link" href="{{ next_url }}">Next</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 {% endblock %}

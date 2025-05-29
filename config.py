@@ -1,10 +1,8 @@
 import os
 from dotenv import load_dotenv
 
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
-
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-willnever-guess-the-supersecret-key'
@@ -21,3 +19,11 @@ class Config(object):
     ADMINS = [x.strip() for x in os.environ.get('ADMINS', '').split(',') if x]
     POSTS_PER_PAGE = int(os.environ.get('POSTS_PER_PAGE', 10))
     # Add any other config settings as needed
+
+    @staticmethod
+    def validate_config():
+        if Config.SECRET_KEY == 'you-willnever-guess-the-supersecret-key':
+            import warnings
+            warnings.warn("Using default SECRET_KEY! Set a secure SECRET_KEY environment variable in production.", UserWarning)
+
+Config.validate_config()

@@ -1,6 +1,6 @@
 import os
 import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
+from logging.handlers import RotatingFileHandler
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
@@ -9,6 +9,31 @@ from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_mailman import Mail
 from flask_moment import Moment
+
+# ---- GLOBAL LOGGING SETUP ----
+LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'logs')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR, exist_ok=True)
+
+file_handler = RotatingFileHandler(
+    os.path.join(LOG_DIR, 'spjald.log'),
+    maxBytes=10240,
+    backupCount=10
+)
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+))
+file_handler.setLevel(logging.INFO)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    handlers=[file_handler, console_handler]
+)
+logging.info("Global logging is set up at app startup.")
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -20,6 +45,7 @@ mail = Mail()
 moment = Moment()
 
 def create_app(config_class=Config):
+    """Flask application factory. Sets up extensions, logging, blueprints, and app context."""
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -30,6 +56,7 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
 
+    # Register blueprints (ensure each exposes `bp`)
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
@@ -39,37 +66,21 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    if not app.debug and not app.testing:
-        if app.config.get('MAIL_SERVER'):
-            auth = None
-            if app.config.get('MAIL_USERNAME') or app.config.get('MAIL_PASSWORD'):
-                auth = (app.config['MAIL_USERNAME'],
-                        app.config['MAIL_PASSWORD'])
-            secure = None
-            if app.config.get('MAIL_USE_TLS'):
-                secure = ()
-            mail_handler = SMTPHandler(
-                mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-                fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='Spjald Failure',
-                credentials=auth, secure=secure)
-            mail_handler.setLevel(logging.ERROR)
-            app.logger.addHandler(mail_handler)
+    # Log startup with Flask's app.logger
+    app.logger.info('Spjald startup (Flask app logger)')
 
-        log_dir = '/var/log/spjald/'
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-        file_handler = RotatingFileHandler(os.path.join(log_dir, 'spjald.log'),
-                                           maxBytes=10240, backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]'))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
+    # Warn if running in production with default secret key
+    if (not app.config.get("SECRET_KEY") or
+            app.config.get("SECRET_KEY") == "you-willnever-guess-the-supersecret-key"):
+        app.logger.warning("SECRET_KEY is not set or using the default! Set a secure SECRET_KEY in production.")
 
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('Spjald startup')
+    # Shell context processor for Flask CLI
+    @app.shell_context_processor
+    def make_shell_context():
+        from app.models import User, Post
+        return {'db': db, 'User': User, 'Post': Post}
 
     return app
 
+# Import models to ensure they are registered with SQLAlchemy (avoid circular imports)
 from app import models

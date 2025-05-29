@@ -1,24 +1,31 @@
 {% extends "base.html" %}
+{% block title %}Search{% endblock %}
 {% block content %}
-  <h1>Search Results for "{{ query }}"</h1>
+  <h1>Search Results for "{{ query|e }}"</h1>
   {% if posts %}
-    <ul>
+    <ul class="list-group mb-4">
       {% for post in posts %}
-        <li>
-          {{ post.clientname }} - {{ post.clientemail }}<br>
-          {{ post.clientinfo }}
+        <li class="list-group-item">
+          {{ post.clientname|e }} - {{ post.clientemail|e }}<br>
+          {{ post.clientinfo|safe }}
         </li>
       {% endfor %}
     </ul>
-    <div class="pagination">
-      {% if prev_url %}
-        <a href="{{ prev_url }}">Previous</a>
-      {% endif %}
-      {% if next_url %}
-        <a href="{{ next_url }}">Next</a>
-      {% endif %}
-    </div>
+    <nav aria-label="Pagination">
+      <ul class="pagination">
+        {% if prev_url %}
+          <li class="page-item">
+            <a class="page-link" href="{{ prev_url }}">Previous</a>
+          </li>
+        {% endif %}
+        {% if next_url %}
+          <li class="page-item">
+            <a class="page-link" href="{{ next_url }}">Next</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
   {% else %}
-    <p>No results found.</p>
+    <div class="alert alert-warning">No results found.</div>
   {% endif %}
 {% endblock %}

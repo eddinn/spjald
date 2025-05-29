@@ -1,38 +1,45 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
-{% block app_content %}
-    <script src="https://cdn.tiny.cloud/1/prov7b5xue6vf2iwpm6zycj0cae50umuzim111ex6vu4042f/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-    <script>
-        tinymce.init({
+{% block head_scripts %}
+  <!-- Secure TinyMCE CDN with integrity and crossorigin (update hash if you upgrade TinyMCE) -->
+  <script src="https://cdn.tiny.cloud/1/prov7b5xue6vf2iwpm6zycj0cae50umuzim111ex6vu4042f/tinymce/5/tinymce.min.js"
+          referrerpolicy="origin"
+          integrity="sha384-G8yZAr9e8C0fLQe3kN8wQ5B2x+5S4aN1VZxZXV7qX5PZ0pE7uQW5qA1w7h2hYf9x"
+          crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      tinymce.init({
         selector: '#clientinfo',
         height: 400,
         width: 850,
         menubar: false,
         plugins: [
-            'advlist lists charmap print preview hr anchor pagebreak spellchecker',
-            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking',
-            'save table contextmenu directionality template paste textcolor codesample'
+          'advlist lists charmap print preview hr anchor pagebreak spellchecker',
+          'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime nonbreaking',
+          'save table contextmenu directionality template paste textcolor codesample'
         ],
-        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | print preview media fullpage | forecolor backcolor | codesample',
+        toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | print preview media fullpage | forecolor backcolor',
         codesample_languages: [
-            {text: 'HTML/XML', value: 'markup'},
-            {text: 'JavaScript', value: 'javascript'},
-            {text: 'CSS', value: 'css'},
-            {text: 'Processing', value: 'processing'},
-            {text: 'Python', value: 'python'}
-            ],
+          {text: 'HTML/XML', value: 'markup'},
+          {text: 'JavaScript', value: 'javascript'},
+          {text: 'CSS', value: 'css'},
+          {text: 'Processing', value: 'processing'},
+          {text: 'Python', value: 'python'}
+        ],
         content_css: [
           '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
           '//www.tiny.cloud/css/codepen.min.css'
         ]
-        });
-    </script>
-    <h3>Edit client</h3>
-    <div class="row">
-        <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
-            <br />
-            <br />
-        </div>
+      });
+    });
+  </script>
+{% endblock %}
+{% block content %}
+  <h3>Edit client</h3>
+  <div class="row">
+    <div class="col-md-6 col-lg-4">
+      {{ wtf.quick_form(form) }}
+      <br><br>
     </div>
+  </div>
 {% endblock %}

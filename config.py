@@ -21,4 +21,3 @@ class Config(object):
     ADMINS = [x.strip() for x in os.environ.get('ADMINS', '').split(',') if x]
     POSTS_PER_PAGE = int(os.environ.get('POSTS_PER_PAGE', 10))
     # Add any other config settings as needed
-    

@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, loginm
 
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
@@ -20,9 +21,11 @@ class User(UserMixin, db.Model):
     def followed_posts(self):
         return Post.query.filter_by(author_id=self.id).order_by(Post.timestamp.desc())
 
+
 @loginm.user_loader
 def load_user(id):
     return db.session.get(User, int(id)) # SQLAlchemy 2.0+ pattern
+
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -110,4 +110,5 @@ def search():
         page=page, per_page=current_app.config['POSTS_PER_PAGE'], error_out=False)
     next_url = url_for('main.search', q=query, page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.search', q=query, page=posts.prev_num) if posts.has_prev else None
-    return render_template('search.html', title='Search Results', posts=posts.items, query=query, next_url=next_url, prev_url=prev_url)
+    return render_template('search.html', title='Search Results', posts=posts.items, query=query, \
+        next_url=next_url, prev_url=prev_url)

@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from werkzeug.urls import url_parse
+from urllib.parse import urlparse  # CHANGED HERE
 from app import db
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm, EditProfileForm
@@ -19,7 +19,8 @@ def login():
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
+        # UPDATED HERE
+        if not next_page or urlparse(next_page).netloc != '':
             next_page = url_for('main.index')
         return redirect(next_page)
     return render_template('auth/login.html', title='Sign In', form=form)
@@ -36,9 +37,9 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(
-            name=form.name.data,
-            username=form.username.data,
-            email=form.email.data,
+            name=form.name.data,  # type: ignore
+            username=form.username.data,  # type: ignore
+            email=form.email.data,  # type: ignore
         )
         user.set_password(form.password.data)
         db.session.add(user)
@@ -58,13 +59,13 @@ def reset_password_request():
             send_email('Reset Your Password',
                        sender='noreply@yourdomain.com',
                        recipients=[user.email],
-                       text_body='Instructions here', # customize
-                       html_body='<p>Instructions here</p>') # customize
+                       text_body='Instructions here',  # customize
+                       html_body='<p>Instructions here</p>')  # customize
         flash('Check your email for the instructions to reset your password')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html', title='Reset Password', form=form)
 
-@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+@bp.route('/reset_password/<token>', methods=['GET', 'POST'])  # type: ignore
 def reset_password(token):
     # Token-based password reset logic (ensure you update this if you change user model/token handling)
     pass

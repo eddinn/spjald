@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-    
+
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
@@ -24,7 +24,7 @@ class User(UserMixin, db.Model):
 
 @loginm.user_loader
 def load_user(id):
-    return db.session.get(User, int(id)) # SQLAlchemy 2.0+ pattern
+    return db.session.get(User, int(id))  # SQLAlchemy 2.0+ pattern
 
 
 class Post(db.Model):

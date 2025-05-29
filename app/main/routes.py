@@ -6,10 +6,12 @@ from flask import request, render_template, flash, redirect, url_for, current_ap
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
+
 @bp.before_app_request
 def before_request():
     if current_user.is_authenticated:
         g.search_form = SearchForm()
+
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -24,6 +26,7 @@ def index():
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
 
+
 @bp.route('/addpost', methods=['GET', 'POST'])
 @login_required
 def addpost():
@@ -33,15 +36,15 @@ def addpost():
     if form.validate_on_submit():
         if form.submit.data:
             post = Post(
-                clientname=form.clientname.data,
-                clientss=form.clientss.data,
-                clientemail=form.clientemail.data,
-                clientphone=form.clientphone.data,
-                clientaddress=form.clientaddress.data,
-                clientzip=form.clientzip.data,
-                clientcity=form.clientcity.data,
-                clientinfo=form.clientinfo.data,
-                author=current_user
+                clientname=form.clientname.data,  # type: ignore
+                clientss=form.clientss.data,  # type: ignore
+                clientemail=form.clientemail.data,  # type: ignore
+                clientphone=form.clientphone.data,  # type: ignore
+                clientaddress=form.clientaddress.data,  # type: ignore
+                clientzip=form.clientzip.data,  # type: ignore
+                clientcity=form.clientcity.data,  # type: ignore
+                clientinfo=form.clientinfo.data,  # type: ignore
+                author=current_user  # type: ignore
             )
             db.session.add(post)
             db.session.commit()
@@ -50,6 +53,7 @@ def addpost():
         else:
             return redirect(url_for('main.index'))
     return render_template('addpost.html', title='Add client', form=form)
+
 
 @bp.route('/editpost/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -66,6 +70,7 @@ def editpost(id):
             return redirect(url_for('main.index'))
     return render_template('editpost.html', title='Edit client', form=form, id=id)
 
+
 @bp.route('/deletepost/<int:id>', methods=['GET', 'POST'])
 @login_required
 def deletepost(id):
@@ -74,6 +79,7 @@ def deletepost(id):
     db.session.commit()
     flash('Client successfully deleted!')
     return redirect(url_for('main.index'))
+
 
 @bp.route('/user/<username>')
 @login_required
@@ -87,6 +93,7 @@ def user(username):
     return render_template('user.html', title='User profile',
                            user=user, posts=posts.items,
                            next_url=next_url, prev_url=prev_url)
+
 
 @bp.route('/search')
 @login_required
@@ -110,5 +117,5 @@ def search():
         page=page, per_page=current_app.config['POSTS_PER_PAGE'], error_out=False)
     next_url = url_for('main.search', q=query, page=posts.next_num) if posts.has_next else None
     prev_url = url_for('main.search', q=query, page=posts.prev_num) if posts.has_prev else None
-    return render_template('search.html', title='Search Results', posts=posts.items, query=query, \
-        next_url=next_url, prev_url=prev_url)
+    return render_template('search.html', title='Search Results', posts=posts.items, query=query,
+                           next_url=next_url, prev_url=prev_url)

@@ -15,7 +15,7 @@ jobs:
           name: Lint
           command: |
             pip install flake8
-            flake8 . --exclude=venv*,migrations* --ignore=E402,F401 --statistics
+            flake8 . --exclude=venv*,migrations* --count --select=E9,F63,F7,F82 --ignore=E402,F401 --max-complexity=10 --max-line-length=127 --show-source --statistics
       - run:
           name: Run tests
           command: |

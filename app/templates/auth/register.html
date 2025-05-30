@@ -1,16 +1,12 @@
 {% extends "base.html" %}
+
 {% import 'bootstrap/wtf.html' as wtf %}
-{% block title %}Register{% endblock %}
-{% block content %}
-  <h3>Register</h3>
-  <div class="row">
-    <div class="col-md-4">
-      {{ wtf.quick_form(form) }}
+
+{% block app_content %}
+    <h3>Register</h3>
+    <div class="row">
+        <div class="col-md-4">
+            {{ wtf.quick_form(form) }}
+        </div>
     </div>
-  </div>
-  <br />
-  <p>
-    Already have an account?
-    <a href="{{ url_for('auth.login') }}">Sign in here</a>
-  </p>
 {% endblock %}

@@ -1,31 +1,41 @@
-{% extends "base.html" %}
-{% block title %}Search{% endblock %}
-{% block content %}
-  <h1>Search Results for "{{ query|e }}"</h1>
+{# app/templates/search.html #}
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+  <h1 class="mb-4">Search Results for “{{ request.args.get('q') }}”</h1>
   {% if posts %}
-    <ul class="list-group mb-4">
+    <div class="row">
       {% for post in posts %}
-        <li class="list-group-item">
-          {{ post.clientname|e }} - {{ post.clientemail|e }}<br>
-          {{ post.clientinfo|safe }}
-        </li>
+        <div class="col-md-12 mb-3">
+          {% include '_post.html' %}
+        </div>
       {% endfor %}
-    </ul>
-    <nav aria-label="Pagination">
-      <ul class="pagination">
-        {% if prev_url %}
-          <li class="page-item">
-            <a class="page-link" href="{{ prev_url }}">Previous</a>
-          </li>
-        {% endif %}
-        {% if next_url %}
-          <li class="page-item">
-            <a class="page-link" href="{{ next_url }}">Next</a>
-          </li>
-        {% endif %}
-      </ul>
-    </nav>
+    </div>
   {% else %}
-    <div class="alert alert-warning">No results found.</div>
+    <p class="text-muted">No results found.</p>
   {% endif %}
+
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if prev_url %}
+        <li class="page-item">
+          <a class="page-link" href="{{ prev_url }}">Previous</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Previous</span>
+        </li>
+      {% endif %}
+      {% if next_url %}
+        <li class="page-item">
+          <a class="page-link" href="{{ next_url }}">Next</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link">Next</span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 {% endblock %}

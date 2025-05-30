@@ -1,13 +1,16 @@
+# wsgi.py
+
+#!/usr/bin/python3
 import sys
 import logging
 
-# Ensure the app directory is in the Python path before imports.
+# Ensure your project root is on PYTHONPATH
 sys.path.insert(0, "/var/www/html/fegurdspa/html/spjald")
 
-from app import create_app
+# Import the Flask app as 'application' for WSGI servers
+from spjald import app as application
 
-application = create_app()
-
+# Configure basic file‐based logging
 logging.basicConfig(
     filename='/var/log/spjald/spjald.log',
     level=logging.INFO,

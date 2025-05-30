@@ -1,44 +1,42 @@
 {% extends "base.html" %}
-{% block title %}{{ user.name|e }}{% endblock %}
-{% block content %}
-  <div class="row">
-    <div class="col-md-9">
-      <h1>{{ user.name|e }}</h1>
-      {% if user.about_me %}
-        <p><strong>About:</strong> {{ user.about_me|e }}</p>
-      {% endif %}
-      <p>Member since: {{ moment(user.member_since).format('LL') }}</p>
-      <p>Last seen: {{ moment(user.last_seen).fromNow() }}</p>
-      {% if current_user.is_authenticated and current_user.username == user.username %}
-        <a href="{{ url_for('main.edit_profile') }}" class="btn btn-secondary mb-3">Edit Profile</a>
-      {% endif %}
-      <h3>Clients</h3>
-      {% if posts %}
-        <ul class="list-group mb-4">
-          {% for post in posts %}
-            <li class="list-group-item">
-              <a href="{{ url_for('main.editpost', id=post.id) }}">{{ post.clientname|e }}</a>
-              ({{ post.clientemail|e }})<br>
-              {{ post.clientinfo|safe }}
+{% block app_content %}
+    <table class="table table-hover">
+        <tr>
+            <td width="256px"><img src="{{ user.avatar(128) }}"></td>
+            </td>
+            <td>
+                <p>
+                    <h4><i class="fas fa-user fa-sm"></i> {{ user.name }} - {{ user.username }}</h4>
+                    <h4><i class="fas fa-envelope fa-sm"></i> {{ user.email }}</h4>
+                </p>
+                <p>{{ user.followers.count() }} followers, {{ user.followed.count() }} following.</p>
+                {% if not current_user.is_following(user) %}
+                <p><i class="fas fa-plus fa-sm"></i> <a href="{{ url_for('main.follow', username=user.username) }}"><b>Follow</b></a></p>
+                {% else %}
+                <p><i class="fas fa-minus fa-sm"></i> <a href="{{ url_for('main.unfollow', username=user.username) }}"><b>Unfollow</b></a></p>
+                {% endif %}
+                {% if user == current_user %}
+                <p><a href="{{ url_for('auth.edit_profile') }}">Edit profile</a></p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <hr>
+    {% for post in posts %}
+        {% include '_post.html' %}
+    {% endfor %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true"><i class="fas fa-angle-left"></i></span> Newer
+                </a>
             </li>
-          {% endfor %}
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Older <span aria-hidden="true"><i class="fas fa-angle-right"></i></span>
+                </a>
+            </li>
         </ul>
-      {% else %}
-        <div class="alert alert-info">No clients found for this user.</div>
-      {% endif %}
-      <nav aria-label="Pagination">
-        <ul class="pagination">
-          {% if prev_url %}
-            <li class="page-item"><a class="page-link" href="{{ prev_url }}">Previous</a></li>
-          {% endif %}
-          {% if next_url %}
-            <li class="page-item"><a class="page-link" href="{{ next_url }}">Next</a></li>
-          {% endif %}
-        </ul>
-      </nav>
-    </div>
-    <div class="col-md-3">
-      <img src="{{ user.avatar(128) }}" class="img-fluid rounded-circle mb-3" alt="User Avatar">
-    </div>
-  </div>
+    </nav>
 {% endblock %}

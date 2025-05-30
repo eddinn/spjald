@@ -1,3 +1,5 @@
+# app/main/routes.py
+
 from app import db
 from app.main import bp
 from app.main.forms import PostForm, EditPostForm, SearchForm
@@ -93,23 +95,36 @@ def deletepost(id):
 @bp.route('/user/<username>')
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    page = request.args.get('page', 1, type=int)
-    pagination = db.paginate(
-        user.posts.order_by(Post.timestamp.desc()),
-        page=page,
-        per_page=current_app.config['POSTS_PER_PAGE'],
-        error_out=False
-    )
-    posts = pagination.items
-    next_url = url_for('main.user', username=user.username, page=page + 1) \
-        if pagination.has_next else None
-    prev_url = url_for('main.user', username=user.username, page=page - 1) \
-        if pagination.has_prev else None
-    return render_template(
-        'user.html', title='User profile', user=user,
-        posts=posts, next_url=next_url, prev_url=prev_url
-    )
+    # Wrap in try/except to capture any errors in the profile view
+    try:
+        current_app.logger.info(f"Loading profile for user: {username}")
+        user = User.query.filter_by(username=username).first_or_404()
+        page = request.args.get('page', 1, type=int)
+        pagination = db.paginate(
+            user.posts.order_by(Post.timestamp.desc()),
+            page=page,
+            per_page=current_app.config['POSTS_PER_PAGE'],
+            error_out=False
+        )
+        posts = pagination.items
+        next_url = (
+            url_for('main.user', username=user.username, page=page + 1)
+            if pagination.has_next else None
+        )
+        prev_url = (
+            url_for('main.user', username=user.username, page=page - 1)
+            if pagination.has_prev else None
+        )
+        return render_template(
+            'user.html', title='User profile', user=user,
+            posts=posts, next_url=next_url, prev_url=prev_url
+        )
+    except Exception as e:
+        current_app.logger.error(
+            f"Error in profile view for {username}", exc_info=True
+        )
+        # Re-raise so your global errorhandler will render the 500 page
+        raise
 
 @bp.route('/follow/<username>')
 @login_required
@@ -150,10 +165,14 @@ def search():
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['POSTS_PER_PAGE']
     posts, total = Post.search(query_str, page, per_page)
-    next_url = url_for('main.search', q=query_str, page=page + 1) \
+    next_url = (
+        url_for('main.search', q=query_str, page=page + 1)
         if page * per_page < total else None
-    prev_url = url_for('main.search', q=query_str, page=page - 1) \
+    )
+    prev_url = (
+        url_for('main.search', q=query_str, page=page - 1)
         if page > 1 else None
+    )
     return render_template(
         'search.html', title='Search Results',
         posts=posts, next_url=next_url, prev_url=prev_url

@@ -11,12 +11,14 @@ from werkzeug.urls import url_parse
 from app import db
 from app.auth import bp
 from app.auth.forms import (
-    LoginForm, RegistrationForm,
-    ResetPasswordRequestForm, ResetPasswordForm
+    LoginForm,
+    RegistrationForm,
+    ResetPasswordRequestForm,
+    ResetPasswordForm,
+    EditProfileForm
 )
 from app.models import User
 from app.email import send_password_reset_email
-
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -35,13 +37,11 @@ def login():
         return redirect(next_page)
     return render_template('auth/login.html', title='Sign In', form=form)
 
-
 @bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
-
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -56,7 +56,6 @@ def register():
         flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='Register', form=form)
-
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -81,7 +80,6 @@ def reset_password_request():
         form=form
     )
 
-
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     """
@@ -102,5 +100,35 @@ def reset_password(token):
     return render_template(
         'auth/reset_password.html',
         title='Reset Password',
+        form=form
+    )
+
+@bp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    """
+    Allow the current user to update their username (and other profile fields).
+    """
+    form = EditProfileForm(original_username=current_user.username)
+    if form.cancel.data:
+        return redirect(url_for('main.user', username=current_user.username))
+    if form.validate_on_submit():
+        current_user.name = form.name.data
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        # If your form has additional fields (e.g. about_me), update them here:
+        # current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.', 'success')
+        return redirect(url_for('auth.edit_profile'))
+    elif request.method == 'GET':
+        form.name.data = current_user.name
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        # Pre-fill additional fields if any:
+        # form.about_me.data = current_user.about_me
+    return render_template(
+        'auth/edit_profile.html',
+        title='Edit Profile',
         form=form
     )

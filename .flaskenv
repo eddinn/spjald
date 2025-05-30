@@ -1,0 +1,2 @@
+FLASK_APP=spjald:app
+FLASK_ENV=production

@@ -1,63 +1,18 @@
+# app/models.py
+
 import jwt
 from datetime import datetime
-from app import db, loginm
-from werkzeug.security import generate_password_hash, check_password_hash
+from time import time
+from hashlib import _hashlib
+
 from flask import current_app
 from flask_login import UserMixin
-from hashlib import _hashlib
-from time import time
-from app.search import add_to_index, remove_from_index, query_index
+from sqlalchemy import or_
+
+from app import db, login
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class SearchableMixin(object):
-    @classmethod
-    def search(cls, expression, page, per_page):
-        ids, total = query_index(cls.__tablename__, expression, page, per_page)
-        if total == 0:
-            return cls.query.filter_by(id=0), 0
-        when = []
-        for i in range(len(ids)):
-            when.append((ids[i], i))
-        return cls.query.filter(cls.id.in_(ids)).order_by(
-            db.case(when, value=cls.id)), total
-
-    @classmethod
-    def before_commit(cls, session):
-        session._changes = {
-            'add': list(session.new),
-            'update': list(session.dirty),
-            'delete': list(session.deleted)
-        }
-
-    @classmethod
-    def after_commit(cls, session):
-        for obj in session._changes['add']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['update']:
-            if isinstance(obj, SearchableMixin):
-                add_to_index(obj.__tablename__, obj)
-        for obj in session._changes['delete']:
-            if isinstance(obj, SearchableMixin):
-                remove_from_index(obj.__tablename__, obj)
-        session._changes = None
-
-    @classmethod
-    def reindex(cls):
-        for obj in cls.query:
-            add_to_index(cls.__tablename__, obj)
-
-
-db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
-db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
-
-
-@loginm.user_loader
-def load_user(id):  # pylint: disable=redefined-builtin
-    return User.query.get(int(id))
-
-
-# Database models
 followers = db.Table(
     'followers',
     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
@@ -76,10 +31,12 @@ class User(UserMixin, db.Model):
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
         secondaryjoin=(followers.c.followed_id == id),
-        backref=db.backref('followers', lazy='dynamic'), lazy='dynamic')
+        backref=db.backref('followers', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return f'<User {self.username}>'
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -90,8 +47,7 @@ class User(UserMixin, db.Model):
     def avatar(self, size):
         digest = _hashlib.openssl_md5(
             self.email.lower().encode('utf-8')).hexdigest()
-        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
-            digest, size)
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def follow(self, user):
         if not self.is_following(user):
@@ -107,32 +63,30 @@ class User(UserMixin, db.Model):
 
     def followed_posts(self):
         followed = Post.query.join(
-            followers, (followers.c.followed_id == Post.user_id)).filter(
-                followers.c.follower_id == self.id)
+            followers, (followers.c.followed_id == Post.user_id)
+        ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id=self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            current_app.config['SECRET_KEY'],
-            algorithm='HS256')
+            current_app.config['SECRET_KEY'], algorithm='HS256'
+        )
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(  # pylint: disable=redefined-builtin
+            uid = jwt.decode(
                 token, current_app.config['SECRET_KEY'],
-                algorithms=['HS256'])['reset_password']
-        except Exception as e:
-            print("EXCEPTION FORMAT PRINT:\n{}".format(e))
-            return
-        return User.query.get(id)
+                algorithms=['HS256']
+            )['reset_password']
+        except Exception:
+            return None
+        return User.query.get(uid)
 
 
-class Post(SearchableMixin, db.Model):
-    __searchable__ = ['clientname', 'clientss', 'clientemail', 'clientphone',
-                      'clientaddress', 'clientcity', 'clientzip', 'clientinfo']
+class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     clientname = db.Column(db.String(64), index=True)
     clientss = db.Column(db.String(11), index=True, unique=True)
@@ -145,10 +99,36 @@ class Post(SearchableMixin, db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    # def __repr__(self):
-    #    return '{}'.format(self.clientname, self.clientss,
-    #                       self.clientemail, self.clientphone,
-    #                       self.clientaddress, self.clientcity,
-    #                       self.clientzip, self.clientinfo)
+    searchable_fields = [
+        'clientname', 'clientss', 'clientemail', 'clientphone',
+        'clientaddress', 'clientcity', 'clientzip', 'clientinfo'
+    ]
+
     def __repr__(self):
-        return '<Post {}>'.format(self.clientname)
+        return f'<Post {self.clientname}>'
+
+    @classmethod
+    def search(cls, query, page, per_page):
+        """
+        Perform case-insensitive search across all searchable_fields.
+        Returns a tuple (items, total).
+        """
+        # Build filters: field ilike %query%
+        filters = [getattr(cls, field).ilike(f"%{query}%")
+                   for field in cls.searchable_fields]
+        q = cls.query.filter(or_(*filters)).order_by(cls.timestamp.desc())
+
+        # Use SQLAlchemy 2-style pagination
+        pagination = db.paginate(
+            q,
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        return pagination.items, pagination.total
+
+
+# Flask-Login user loader
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))

@@ -6,7 +6,7 @@ import time
 import traceback
 
 # 0) Log immediately to confirm this file is used
-with open('/var/www/html/fegurdspa/html/spjald/logs/spjald_wsgi_loaded.log', 'a') as f:
+with open('/tmp/spjald_wsgi_loaded.log', 'a') as f:
     f.write(f"{time.asctime()}: wsgi.py imported\n")
 
 # 1) Ensure project root is on PYTHONPATH and cwd
@@ -34,13 +34,12 @@ os.environ.setdefault('MAIL_PORT', '25')
 try:
     from spjald import create_app
     application = create_app()
-    with open('/var/www/html/fegurdspa/html/spjald/logs/spjald_wsgi_loaded.log', 'a') as f:
+    with open('/tmp/spjald_wsgi_loaded.log', 'a') as f:
         f.write(f"{time.asctime()}: create_app() succeeded\n")
 except Exception:
-    err_path = '/var/www/html/fegurdspa/html/spjald/logs/spjald_wsgi_error.log'
+    err_path = '/tmp/spjald_wsgi_error.log'
     with open(err_path, 'a') as f:
         f.write(f"{time.asctime()}: Exception in wsgi.py\n")
         traceback.print_exc(file=f)
         f.write("\n")
-    # Re-raise so Apache also logs the 500
     raise

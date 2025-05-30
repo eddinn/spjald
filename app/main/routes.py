@@ -1,5 +1,3 @@
-# app/main/routes.py
-
 from app import db
 from app.main import bp
 from app.main.forms import PostForm, EditPostForm, SearchForm
@@ -9,7 +7,6 @@ from flask import (
     url_for, current_app, g
 )
 from flask_login import current_user, login_required
-from sqlalchemy import or_
 
 @bp.before_app_request
 def before_request():
@@ -21,7 +18,6 @@ def before_request():
 @login_required
 def index():
     page = request.args.get('page', 1, type=int)
-    # Build a single query fetching posts by you and those you follow
     followed_ids = [u.id for u in current_user.followed] + [current_user.id]
     query = Post.query.filter(Post.user_id.in_(followed_ids)) \
                       .order_by(Post.timestamp.desc())
@@ -95,7 +91,6 @@ def deletepost(id):
 @bp.route('/user/<username>')
 @login_required
 def user(username):
-    # Wrap in try/except to capture any errors in the profile view
     try:
         current_app.logger.info(f"Loading profile for user: {username}")
         user = User.query.filter_by(username=username).first_or_404()
@@ -119,11 +114,10 @@ def user(username):
             'user.html', title='User profile', user=user,
             posts=posts, next_url=next_url, prev_url=prev_url
         )
-    except Exception as e:
+    except Exception:
         current_app.logger.error(
             f"Error in profile view for {username}", exc_info=True
         )
-        # Re-raise so your global errorhandler will render the 500 page
         raise
 
 @bp.route('/follow/<username>')

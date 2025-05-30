@@ -1,5 +1,3 @@
-# app/__init__.py
-
 import os
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
@@ -41,7 +39,7 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
 
-    # Register blueprints, ignoring duplicates
+    # Register blueprints
     from app.errors import bp as errors_bp
     try:
         app.register_blueprint(errors_bp)
@@ -60,18 +58,15 @@ def create_app(config_class=Config):
     except AssertionError:
         pass
 
-    # ——— Global catch‐all error handler ———
+    # Global catch‐all error handler
     @app.errorhandler(Exception)
     def handle_unhandled_exception(error):
-        # Log full stack trace
         app.logger.error('Unhandled Exception', exc_info=True)
-        # Roll back any pending DB transaction
         try:
             db.session.rollback()
         except Exception:
             pass
         return render_template('errors/500.html'), 500
-    # ——————————————————————————————————————
 
     # Production logging setup
     if not app.debug and not app.testing:
@@ -107,6 +102,5 @@ def create_app(config_class=Config):
         app.logger.info('Spjald startup')
 
     return app
-
 
 from app import models

@@ -1,5 +1,22 @@
-2025-05-30 18:05:07,333 INFO: Spjald startup [in /home/edvin/Prog/spjald/app/__init__.py:77]
-2025-05-30 18:07:45,860 ERROR: Exception on / [GET] [in /home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py:1414]
+2025-05-30 18:59:16,297 ERROR: Exception on /favicon.ico [GET] [in /home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py:1414]
+Traceback (most recent call last):
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1458, in dispatch_request
+    self.raise_routing_exception(req)
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1440, in raise_routing_exception
+    raise request.routing_exception  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/ctx.py", line 353, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 655, in match
+    raise NotFound() from None
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
   File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
@@ -7,62 +24,52 @@ Traceback (most recent call last):
   File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
     rv = self.handle_user_exception(e)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1482, in full_dispatch_request
-    rv = self.preprocess_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1974, in preprocess_request
-    rv = self.ensure_sync(before_func)()
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/app/main/routes.py", line 14, in before_request
-    if current_user.is_authenticated:
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
-    obj = instance._get_current_object()
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/werkzeug/local.py", line 515, in _get_current_object
-    return get_name(local())
-                    ^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/utils.py", line 25, in <lambda>
-    current_user = LocalProxy(lambda: _get_user())
-                                      ^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/utils.py", line 370, in _get_user
-    current_app.login_manager._load_user()
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/login_manager.py", line 347, in _load_user
-    raise Exception(
-Exception: Missing user_loader or request_loader. Refer to http://flask-login.readthedocs.io/#how-it-works for more info.
-2025-05-30 18:07:45,938 ERROR: Exception on /favicon.ico [GET] [in /home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py:1414]
-Traceback (most recent call last):
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1482, in full_dispatch_request
-    rv = self.preprocess_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1974, in preprocess_request
-    rv = self.ensure_sync(before_func)()
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/app/main/routes.py", line 14, in before_request
-    if current_user.is_authenticated:
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
-    obj = instance._get_current_object()
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/werkzeug/local.py", line 515, in _get_current_object
-    return get_name(local())
-                    ^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/utils.py", line 25, in <lambda>
-    current_user = LocalProxy(lambda: _get_user())
-                                      ^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/utils.py", line 370, in _get_user
-    current_app.login_manager._load_user()
-  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/login_manager.py", line 347, in _load_user
-    raise Exception(
-Exception: Missing user_loader or request_loader. Refer to http://flask-login.readthedocs.io/#how-it-works for more info.
-2025-05-30 18:59:13,388 INFO: Spjald startup [in /home/edvin/Prog/spjald/app/__init__.py:86]
-2025-05-30 18:59:16,258 ERROR: Exception on / [GET] [in /home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py:1414]
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1341, in handle_user_exception
+    return self.handle_http_exception(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1281, in handle_http_exception
+    return self.ensure_sync(handler)(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/app/errors/handlers.py", line 8, in not_found_error
+    return render_template('errors/404.html'), 404
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1301, in render
+    self.environment.handle_exception()
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/jinja2/environment.py", line 936, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/edvin/Prog/spjald/app/templates/errors/404.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/edvin/Prog/spjald/app/templates/base.html", line 1, in top-level template code
+    {% extends 'bootstrap/base.html' %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 1, in top-level template code
+    {% block doc -%}
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 4, in block 'doc'
+    {%- block html %}
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 20, in block 'html'
+    {% block body -%}
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_bootstrap/templates/bootstrap/base.html", line 21, in block 'body'
+    {% block navbar %}
+  File "/home/edvin/Prog/spjald/app/templates/base.html", line 38, in block 'navbar'
+    <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1697, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 1686, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 950, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.logout'. Did you mean 'main.follow' instead?
+2025-05-30 19:04:11,503 INFO: Spjald startup [in /home/edvin/Prog/spjald/app/__init__.py:86]
+2025-05-30 19:04:14,435 ERROR: Exception on / [GET] [in /home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py:1414]
 Traceback (most recent call last):
   File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
@@ -79,7 +86,8 @@ Traceback (most recent call last):
   File "/home/edvin/Prog/spjald/venv/lib/python3.12/site-packages/flask_login/utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/edvin/Prog/spjald/app/main/routes.py", line 23, in index
-    posts = current_user.followed_posts().paginate(
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: Query.paginate() takes 1 positional argument but 4 were given
+  File "/home/edvin/Prog/spjald/app/main/routes.py", line 31, in index
+    next_url = url_for('main.index', page=pagination.next_page) \
+                                          ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SelectPagination' object has no attribute 'next_page'. Did you mean: 'per_page'?
+2025-05-30 19:06:05,767 INFO: Spjald startup [in /home/edvin/Prog/spjald/app/__init__.py:86]

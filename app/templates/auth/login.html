@@ -4,8 +4,11 @@
 
 {% block app_content %}
   <h2>Sign In</h2>
-  {{ wtf.quick_form(form) }}
-
+  <div class="row">
+    <div class="col-md-4">
+      {{ wtf.quick_form(form) }}
+    </div>
+  </div>
   {# Correct link to the reset-password-request endpoint #}
   <p>
     <a href="{{ url_for('auth.reset_password_request') }}">

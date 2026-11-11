@@ -1,10 +1,15 @@
+# Runs on the homelab's Forgejo (git0) and its runner ci0; GitHub is a mirror and runs nothing.
+# The branch is master: the workflow named main before and so never ran on a push.
 name: Spjald
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
+
+# Forgejo: a failed run emails whoever pushed.
+enable-email-notifications: true
 
 jobs:
   build:

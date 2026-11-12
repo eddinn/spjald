@@ -1,7 +1,7 @@
 # requirements.txt
 
 alembic==1.11.1
-bleach==6.0.0
+bleach==6.4.0
 blinker==1.6.2
 Click==8.1.7
 dominate==2.7.0
